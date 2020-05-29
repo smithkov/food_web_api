@@ -1,0 +1,28 @@
+{
+  "development": {
+    "username": "postgres",
+    "password": "Nnamdi1984",
+    "database": "food_app_db",
+    "host": "127.0.0.1",
+    "dialect": "postgres",
+    "port": 5432
+  },
+  "test": {
+    "username": "postgres",
+    "password": "Nnamdi1984",
+    "database": "food_app_db",
+    "host": "127.0.0.1",
+    "dialect": "postgres",
+    "port": 5432,
+    "operatorsAliases": false
+  },
+  "production": {
+    "username": "postgres",
+    "password": "Nnamdi1984",
+    "database": "food_app_db",
+    "host": "127.0.0.1",
+    "dialect": "postgres",
+    "port": 5432,
+    "operatorsAliases": false
+  }
+}
