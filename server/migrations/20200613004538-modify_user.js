@@ -3,28 +3,13 @@
 module.exports = {
   up: (queryInterface, Sequelize) => {
     return Promise.all([
-      queryInterface.addColumn(
-        "VirtualShops", // table name
-        "firstAddress", // new field name
-        {
-          type: Sequelize.STRING,
-          allowNull: true,
-        }
-      ),
-      queryInterface.addColumn("VirtualShops", "secondAddress", {
-        type: Sequelize.STRING,
-        allowNull: true,
-      }),
-      queryInterface.addColumn("VirtualShops", "postCode", {
-        type: Sequelize.STRING,
-        allowNull: true,
-      }),
-      queryInterface.addColumn("VirtualShops", "cityId", {
+   
+      queryInterface.addColumn("Ratings", "shopId", {
         type: Sequelize.UUID,
         references: {
-          model: "Cities",
+          model: "VirtualShops",
           key: "id",
-          as: "cityId",
+          as: "shopId"
         },
       }),
     ]);

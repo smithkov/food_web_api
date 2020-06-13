@@ -7,7 +7,8 @@ module.exports = {
     DUPLICATE:409,
     Messages:{
         serverError: "Your request could not be saved at the moment, please kindly contact us for resolution.",
-        savedSuccess:"Saved successfully."
+        savedSuccess:"Saved successfully.",
+        updateSuccess:"Updated successfully."
     }
 }
 
