@@ -25,9 +25,6 @@ module.exports = {
       weight: {
         type: Sequelize.STRING
       },
-      rating: {
-        type: Sequelize.STRING
-      },
       unitId: {
         type: Sequelize.UUID,
         references: {
@@ -66,6 +63,14 @@ module.exports = {
           model: 'Categories',
           key: 'id',
           as: 'categoryId',
+        },
+      },
+      originId: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'Origins',
+          key: 'id',
+          as: 'originId',
         },
       },
       createdAt: {

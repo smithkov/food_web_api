@@ -2,6 +2,7 @@ const SubCategory = require("../models").SubCategory;
 const model = require("../models");
 const Query = new require("../queries/crud");
 const validate = require("../validations/validation");
+
 const {
   SERVER_ERROR,
   OK,
@@ -40,6 +41,7 @@ module.exports = {
         .send({ message: Messages.serverError, error: true });
     }
   },
+  
   delete(req, res) {
     const id = req.params.id;
     return query

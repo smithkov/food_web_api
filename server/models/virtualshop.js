@@ -5,21 +5,18 @@ module.exports = (sequelize, DataTypes) => {
     logo: DataTypes.STRING,
     totalSale: DataTypes.STRING,
     bio: DataTypes.STRING,
-    openingTime: DataTypes.STRING,
-    closingTime: DataTypes.STRING
+    firstAddress: DataTypes.STRING,
+    secondAddress: DataTypes.STRING,
+    postCode: DataTypes.STRING
   }, {});
   VirtualShop.associate = function(models) {
-    // associations can be defined here
-    VirtualShop.hasOne(models.BusinessAddress, {
-      foreignKey: 'virtualShopId'
-    });
+    
+    
     VirtualShop.hasMany(models.Product, {
       foreignKey: 'shopId',
       as: 'products',
     });
-    VirtualShop.belongsTo(models.Day, {
-      foreignKey: 'dayId'
-    });
+    
     VirtualShop.belongsTo(models.User, {
       foreignKey: 'userId'
     });
@@ -30,10 +27,19 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'shopId',
       as: 'shopBanners',
     });
+    VirtualShop.hasMany(models.Social, {
+      foreignKey: 'shopId',
+      as: 'socials',
+    });
+    VirtualShop.hasMany(models.OpeningDay, {
+      foreignKey: 'shopId',
+      as: 'openingTimes',
+    });
     VirtualShop.hasMany(models.ShopVideo, {
       foreignKey: 'shopId',
       as: 'shopVideos',
     });
+    VirtualShop.belongsTo(models.City, { foreignKey: "cityId" });
     
   };
   return VirtualShop;

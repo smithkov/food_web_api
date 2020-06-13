@@ -5,9 +5,9 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   Day.associate = function(models) {
     // associations can be defined here
-    Day.hasMany(models.VirtualShop, {
+    Day.hasMany(models.OpeningDay, {
       foreignKey: 'dayId',
-      as: 'shops',
+      as: 'openingDays',
     });
   };
   return Day;

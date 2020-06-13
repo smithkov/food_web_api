@@ -8,7 +8,10 @@ module.exports = (sequelize, DataTypes) => {
     ip: DataTypes.STRING,
     email: DataTypes.STRING,
     lastLogin: DataTypes.DATE,
-    photo: DataTypes.STRING
+    photo: DataTypes.STRING,
+    firstAddress: DataTypes.STRING,
+    secondAddress: DataTypes.STRING,
+    postCode: DataTypes.STRING
   }, {});
   User.associate = function(models) {
     // associations can be defined here
@@ -19,9 +22,7 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'statusId'
     });
    
-    User.hasOne(models.HomeAddress, {
-      foreignKey: 'userId'
-    });
+    
     User.hasMany(models.Product, {
       foreignKey: 'userId',
       as: 'products',
@@ -42,6 +43,16 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'userId',
       as: 'shops',
     });
+    User.hasMany(models.Rating, {
+      foreignKey: 'userId',
+      as: 'ratings',
+    });
+    User.hasMany(models.RatingResponse, {
+      foreignKey: 'userId',
+      as: 'ratingResponses',
+    });
+
+    User.belongsTo(models.City, { foreignKey: "cityId" });
   };
   return User;
 };

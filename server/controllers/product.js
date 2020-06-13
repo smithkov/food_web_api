@@ -1,23 +1,124 @@
 const Product = require("../models").Product;
+const Shop = require("../models").VirtualShop;
+const ProductImage = require("../models").ProductImage;
 const Query = new require("../queries/crud");
 const validate = require("../validations/validation");
-const { SERVER_ERROR, OK, VALIDATION_ERROR } = require("../errors/statusCode");
+const {
+  SERVER_ERROR,
+  OK,
+  VALIDATION_ERROR,
+  Messages,
+} = require("../errors/statusCode");
 const query = new Query(Product);
+const imageQuery = new Query(ProductImage);
+const shopQuery = new Query(Shop);
 
 module.exports = {
-  create(req, res) {
-    const {name, price, discountPrice,quantity, desc, weight, rating} = req.body;
+  create: async (req, res) => {
+    try {
+      const {
+        name,
+        price,
+        discountPrice,
+        quantity,
+        desc,
+        weight,
+        originId,
+        shopId,
+        categoryId,
+        subCategoryId,
+        unitId,
+        userId,
+      } = req.body;
 
-    const { error, value } = validate.nameSchema({ name: name });
+      const { error, value } = validate.nameSchema({ name: name });
 
-    if (!error) {
-      return query
-        .add({ name, price,discountPrice,quantity,dec, weight, rating })
-        .then((product) => res.status(OK).send(product))
-        .catch((error) => res.status(SERVER_ERROR).send(error));
-    } else {
-      return res.status(VALIDATION_ERROR).send({ message: error, error: true });
+      const shop = await shopQuery.findOne({ userId: userId });
+
+      if (!shop)
+        return res
+          .status(VALIDATION_ERROR)
+          .send({ message: "No shop associated with the user", error: true });
+
+      if (!error) {
+        return query
+          .add({
+            name,
+            price,
+            discountPrice,
+            quantity,
+            desc,
+            weight,
+            originId,
+            shopId: shop.id,
+            categoryId,
+            subCategoryId,
+            originId,
+            userId,
+            unitId,
+          })
+          .then((product) => {
+            for (image of req.files) {
+              imageQuery.add({
+                imagePath: image.filename,
+                productId: product.id,
+              });
+            }
+            res.status(OK).send({
+              error: false,
+              message: `${product.name} was added successfully.`,
+            });
+          })
+          .catch((error) =>
+            res
+              .status(SERVER_ERROR)
+              .send({ message: Messages.serverError, error: true })
+          );
+      } else {
+        return res
+          .status(VALIDATION_ERROR)
+          .send({ message: error, error: true });
+      }
+    } catch {
+      return res
+        .status(SERVER_ERROR)
+        .send({ message: Messages.serverError, error: true });
     }
+  },
+  findByCategory(req, res) {
+    const id = req.params.id;
+    return query
+      .findAllWithParam({ categoryId: id })
+      .then((product) => res.status(OK).send({ error: false, data: product }))
+      .catch((error) => res.status(SERVER_ERROR).send(error));
+  },
+  findByUser(req, res) {
+    const userId = req.body.userId;
+    const shop = shopQuery.findOne({ userId: userId });
+    if (!shop)
+      return res
+        .status(VALIDATION_ERROR)
+        .send({ message: "No product associated with this shop", error: true });
+
+    return query
+      .findAllWithParam({ userId: userId })
+      .then((product) => res.status(OK).send({ error: false, data: product }))
+      .catch((error) => res.status(SERVER_ERROR).send(error));
+  },
+  findByShop(req, res) {
+    const shopId = req.params.id;
+
+    return query
+      .findAllWithParam({ shopId: shopId })
+      .then((product) => res.status(OK).send({ error: false, data: product }))
+      .catch((error) => res.status(SERVER_ERROR).send(error));
+  },
+  findByOrigin(req, res) {
+    const id = req.params.id;
+    return query
+      .findAllWithParam({ originId: id })
+      .then((product) => res.status(OK).send({ error: false, data: product }))
+      .catch((error) => res.status(SERVER_ERROR).send(error));
   },
   delete(req, res) {
     const id = req.params.id;
@@ -49,5 +150,9 @@ module.exports = {
       .findAll()
       .then((product) => res.status(OK).send({ error: false, data: product }))
       .catch((error) => res.status(SERVER_ERROR).send(error));
+    // return query
+    //   .findAll()
+    //   .then((product) => res.status(OK).send({ error: false, data: product }))
+    //   .catch((error) => res.status(SERVER_ERROR).send(error));
   },
 };

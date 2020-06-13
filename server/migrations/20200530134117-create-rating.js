@@ -1,36 +1,32 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('HomeAddresses', {
+    return queryInterface.createTable('Ratings', {
       id: {
         allowNull: false,
-        autoIncrement: true,
         primaryKey: true,
-        type: Sequelize.INTEGER
+        type: Sequelize.UUID
       },
-      firstAddress: {
+      value: {
         type: Sequelize.STRING
       },
-      secondAddress: {
+      content: {
         type: Sequelize.STRING
       },
-      postCode: {
-        type: Sequelize.STRING
+      productId: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'Products',
+          key: 'id',
+          as: 'productId',
+        },
       },
       userId: {
         type: Sequelize.UUID,
         references: {
-          model: "Users",
-          key: "id",
-          as: "userId",
-        },
-      },
-      cityId: {
-        type: Sequelize.UUID,
-        references: {
-          model: "Cities",
-          key: "id",
-          as: "cityId",
+          model: 'Users',
+          key: 'id',
+          as: 'userId',
         },
       },
       createdAt: {
@@ -44,6 +40,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('HomeAddresses');
+    return queryInterface.dropTable('Ratings');
   }
 };

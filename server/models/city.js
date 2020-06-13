@@ -5,13 +5,13 @@ module.exports = (sequelize, DataTypes) => {
   }, {});
   City.associate = function(models) {
     // associations can be defined here
-    City.hasMany(models.BusinessAddress, {
+    City.hasMany(models.VirtualShop, {
       foreignKey: 'cityId',
-      as: 'businessAddresses',
+      as: 'shops',
     });
-    City.hasMany(models.HomeAddress, {
+    City.hasMany(models.User, {
       foreignKey: 'cityId',
-      as: 'homeAddresses',
+      as: 'users',
     });
   };
   return City;

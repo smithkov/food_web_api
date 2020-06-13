@@ -1,9 +1,10 @@
 const controller = require('../controllers/shopType');
-const {rootUrl} = require('../utility/constants')
+const {rootUrl} = require('../utility/constants');
+const {auth} = require('../utility/global');
 module.exports = (app) => {
   
 
-  app.post(rootUrl('shopType'), controller.create);
+  app.post(rootUrl('shopType'),auth, controller.create);
 
   app.get(rootUrl('shopTypes'), controller.findAll);
 

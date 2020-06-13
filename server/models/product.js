@@ -6,8 +6,7 @@ module.exports = (sequelize, DataTypes) => {
     discountPrice: DataTypes.STRING,
     quantity: DataTypes.STRING,
     desc: DataTypes.STRING,
-    weight: DataTypes.STRING,
-    rating: DataTypes.STRING
+    weight: DataTypes.STRING
   }, {});
   Product.associate = function(models) {
     // associations can be defined here
@@ -19,6 +18,9 @@ module.exports = (sequelize, DataTypes) => {
     });
     Product.belongsTo(models.SubCategory, {
       foreignKey: 'subCategoryId'
+    });
+    Product.belongsTo(models.Origin, {
+      foreignKey: 'originId'
     });
     Product.belongsTo(models.VirtualShop, {
       foreignKey: 'shopId'
@@ -37,6 +39,10 @@ module.exports = (sequelize, DataTypes) => {
     Product.hasMany(models.Transaction, {
       foreignKey: 'productId',
       as: 'transactions',
+    });
+    Product.hasMany(models.Rating, {
+      foreignKey: 'productId',
+      as: 'ratings',
     });
   };
   return Product;

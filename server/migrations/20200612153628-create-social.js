@@ -1,35 +1,32 @@
 'use strict';
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('BusinessAddresses', {
+    return queryInterface.createTable('Socials', {
       id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID
       },
-      firstAddress: {
+      name: {
         type: Sequelize.STRING
       },
-      secondAddress: {
+      url: {
         type: Sequelize.STRING
       },
-      postCode: {
-        type: Sequelize.STRING
-      },
-      cityId: {
+      socialTypeId: {
         type: Sequelize.UUID,
         references: {
-          model: "Cities",
-          key: "id",
-          as: "cityId",
+          model: 'SocialTypes',
+          key: 'id',
+          as: 'socialTypeId',
         },
       },
       shopId: {
         type: Sequelize.UUID,
         references: {
-          model: "VirtualShops",
-          key: "id",
-          as: "shopId",
+          model: 'VirtualShops',
+          key: 'id',
+          as: 'shopId',
         },
       },
       createdAt: {
@@ -43,6 +40,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('BusinessAddresses');
+    return queryInterface.dropTable('Socials');
   }
 };
