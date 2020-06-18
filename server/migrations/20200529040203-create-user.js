@@ -22,6 +22,9 @@ module.exports = {
       ip: {
         type: Sequelize.STRING
       },
+      source: {
+        type: Sequelize.STRING
+      },
       email: {
         type: Sequelize.STRING
       },

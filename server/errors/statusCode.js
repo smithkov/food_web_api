@@ -8,7 +8,8 @@ module.exports = {
     Messages:{
         serverError: "Your request could not be saved at the moment, please kindly contact us for resolution.",
         savedSuccess:"Saved successfully.",
-        updateSuccess:"Updated successfully."
+        updateSuccess:"Updated successfully.",
+        ratingSuccess :"We are processing your review. This may take several days, so we appreciate your patience. We will notify you when this is complete."
     }
 }
 

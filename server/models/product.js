@@ -32,6 +32,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'productId',
       as: 'productImages',
     });
+    Product.hasMany(models.ProductRating, {
+      foreignKey: 'productId',
+      as: 'productRatings',
+    });
     Product.hasMany(models.Sponsor, {
       foreignKey: 'productId',
       as: 'sponsors',
@@ -40,10 +44,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'productId',
       as: 'transactions',
     });
-    Product.hasMany(models.Rating, {
-      foreignKey: 'productId',
-      as: 'ratings',
-    });
+    // Product.hasMany(models.Rating, {
+    //   foreignKey: 'productId',
+    //   as: 'ratings',
+    // });
   };
   return Product;
 };

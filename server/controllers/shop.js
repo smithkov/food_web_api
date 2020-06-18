@@ -13,18 +13,31 @@ const {
   DUPLICATE,
   Messages,
 } = require("../errors/statusCode");
+
 const query = new Query(Shop);
 
 const userQuery = new Query(User);
 const roleQuery = new Query(Role);
 const bannerQuery = new Query(Banner);
 const fs = require("fs");
-const {savedSuccess, serverError} = Messages
-
+const { savedSuccess, serverError } = Messages;
+rmSpace = (str) => {
+  return str.replace(" ", "");
+};
 module.exports = {
   create: async (req, res) => {
-    const { shopName, shopTypeId, userId,firstAddress, secondAddress, postCode, cityId } = req.body;
+    const {
+      shopName,
+      shopTypeId,
+      userId,
+      firstAddress,
+      secondAddress,
+      postCode,
+      cityId,
+      shopUrl,
+    } = req.body;
 
+    const shopUri = shopUrl !== "null" ? rmSpace(shopUrl) : rmSpace(shopName);
     const t = await model.sequelize.transaction();
 
     try {
@@ -37,11 +50,7 @@ module.exports = {
       const logo = logoObject ? logoObject[0].filename : null;
       const banner = bannerObject ? bannerObject[0].filename : null;
 
-      
-
-
       if (hasShop) {
-
         const updateShop = await query.updateTransact(
           hasShop.id,
           {
@@ -51,7 +60,8 @@ module.exports = {
             firstAddress,
             secondAddress,
             postCode,
-            cityId
+            cityId,
+            shopUrl: shopUri,
           },
           t
         );
@@ -97,7 +107,8 @@ module.exports = {
           firstAddress,
           secondAddress,
           postCode,
-          cityId
+          cityId,
+          shopUrl: shopUri,
         },
         t
       );
@@ -120,17 +131,18 @@ module.exports = {
       await t.rollback();
 
       console.log(err);
-      res
-        .status(SERVER_ERROR)
-        .send({ message:serverError, error: true });
+      res.status(SERVER_ERROR).send({ message: serverError, error: true });
     }
   },
+
   delete(req, res) {
     const id = req.params.id;
     return query
       .delete(id)
       .then((shop) => res.status(OK).send({ error: false, data: id }))
-      .catch((error) => res.status(SERVER_ERROR).send({ message:serverError, error: true }));
+      .catch((error) =>
+        res.status(SERVER_ERROR).send({ message: serverError, error: true })
+      );
   },
 
   findByUser(req, res) {
@@ -138,7 +150,42 @@ module.exports = {
     return query
       .findOne({ userId })
       .then((shop) => res.status(OK).send({ error: false, data: shop }))
-      .catch((error) => res.status(SERVER_ERROR).send({ message:serverError, error: true }));
+      .catch((error) =>
+        res.status(SERVER_ERROR).send({ message: serverError, error: true })
+      );
+  },
+
+  findShopByName(req, res) {
+    const shopName = req.body.shopName.toLowerCase();
+    return Shop.findOne({
+      where: model.sequelize.where(
+        model.sequelize.fn("lower", model.sequelize.col("shopName")),
+        model.sequelize.fn("lower", shopName)
+      ),
+    })
+      .then((shop) => {
+        res.status(OK).send(shop);
+      })
+      .catch((error) =>
+        res.status(SERVER_ERROR).send({ message: serverError, error: true })
+      );
+  },
+
+  findShopByUrl(req, res) {
+    const shopUrl = req.body.shopUrl.toLowerCase();
+    return Shop.findOne({
+      where: model.sequelize.where(
+        model.sequelize.fn("lower", model.sequelize.col("shopUrl")),
+        model.sequelize.fn("lower", shopUrl)
+      ),
+      include: [{ all: true }],
+    })
+      .then((shop) => {
+        res.status(OK).send(shop);
+      })
+      .catch((error) =>
+        res.status(SERVER_ERROR).send({ message: serverError, error: true })
+      );
   },
 
   findPk(req, res) {
@@ -148,8 +195,8 @@ module.exports = {
         .findPK(id)
         .then((shop) => res.status(OK).send({ error: false, data: shop }))
         .catch((error) => {
-          console.log(error)
-          res.status(SERVER_ERROR).send({ message:serverError, error: true });
+          console.log(error);
+          res.status(SERVER_ERROR).send({ message: serverError, error: true });
         });
     } catch (err) {
       console.log(err);
@@ -162,13 +209,27 @@ module.exports = {
     return query
       .update(id, { name: name })
       .then((shop) => res.status(OK).send({ error: false, data: shop }))
-      .catch((error) => res.status(SERVER_ERROR).send({ message:serverError, error: true }));
+      .catch((error) =>
+        res.status(SERVER_ERROR).send({ message: serverError, error: true })
+      );
+  },
+  updateSettings(req, res) {
+    const {deliveryPrice,minOrder,maxTime, minTime } = req.body;
+    const id = req.params.id;
+    return query
+      .update(id, { deliveryPrice,minOrder,maxTime, minTime })
+      .then((shop) => res.status(OK).send({ error: false, data: shop, message:savedSuccess }))
+      .catch((error) =>
+        res.status(SERVER_ERROR).send({ message: serverError, error: true })
+      );
   },
 
   findAll(req, res) {
     return query
       .findAll()
       .then((shop) => res.status(OK).send({ error: false, data: shop }))
-      .catch((error) => res.status(SERVER_ERROR).send({ message:serverError, error: true }));
+      .catch((error) =>
+        res.status(SERVER_ERROR).send({ message: serverError, error: true })
+      );
   },
 };

@@ -2,6 +2,7 @@ const User = require("../models").User;
 const Role = require("../models").Role;
 const Query = new require("../queries/crud");
 const validate = require("../validations/validation");
+const { system } = require("../utility/constants");
 const jwt = require("jsonwebtoken");
 
 const secret = process.env.SECRET;
@@ -17,7 +18,7 @@ const {
 const query = new Query(User);
 const roleQuery = new Query(Role);
 const bcrypt = require("bcrypt");
-const {savedSuccess, serverError}= Messages
+const { savedSuccess, serverError } = Messages;
 
 module.exports = {
   signUp: async (req, res) => {
@@ -42,6 +43,7 @@ module.exports = {
                 email: email,
                 password: hash,
                 firstName: firstName,
+                source: system,
                 lastName: lastName,
                 roleId: role.id,
               })
@@ -86,9 +88,94 @@ module.exports = {
             expiresIn: "1h",
           }
         );
-        return res
-          .status(OK)
-          .send({
+        return res.status(OK).send({
+          error: false,
+          token: token,
+          data: {
+            email: user.email,
+            id: user.id,
+            fullName: `${user.firstName} ${user.lastName}`,
+            role: user.Role.name,
+            shopId: user.shops.length > 0 ? user.shops[0].id : null,
+          },
+        });
+      }
+    });
+  },
+  socialSignIn: async (req, res) => {
+    const failedLoginMessage = "Email or password is incorrect.";
+    const { email, password, firstName, lastName, source } = req.body;
+    const role = await roleQuery.findOne({ name: "Customer" });
+    console.log("------------------------------------------");
+    console.log(req.body);
+    console.log("------------------------------------------");
+    const user = await query.findOne({ email: email });
+    if (!user) {
+      bcrypt.hash(password, 10, (err, hash) => {
+        if (err) {
+          return res
+            .status(SERVER_ERROR)
+            .send({ message: serverError, error: true });
+        } else {
+          return query
+            .add({
+              email,
+              password: hash,
+              firstName,
+              lastName,
+              roleId: role.id,
+              source,
+            })
+            .then((user) => {
+              
+              const token = jwt.sign(
+                {
+                  email: email,
+                  id: password,
+                },
+                secret,
+                {
+                  expiresIn: "1h",
+                }
+              );
+              res.status(OK).send({
+                error: false,
+                token: token,
+                data: {
+                  email: user.email,
+                  id: user.id,
+                  // fullName: `${user.firstName} ${user.lastName}`,
+                  // role: user.Role.name,
+                  // shopId: user.shops.length > 0 ? user.shops[0].id : null,
+                },
+              });
+            })
+            .catch((error) =>
+              res
+                .status(SERVER_ERROR)
+                .send({ error: true, message: Messages.serverError })
+            );
+        }
+      });
+    } else {
+      bcrypt.compare(password, user.password, (err, result) => {
+        if (err) {
+          return res
+            .status(FAILED_AUTH)
+            .send({ error: true, message: failedLoginMessage });
+        }
+        if (result) {
+          const token = jwt.sign(
+            {
+              email: user.email,
+              id: user.id,
+            },
+            secret,
+            {
+              expiresIn: "1h",
+            }
+          );
+          return res.status(OK).send({
             error: false,
             token: token,
             data: {
@@ -99,8 +186,9 @@ module.exports = {
               shopId: user.shops.length > 0 ? user.shops[0].id : null,
             },
           });
-      }
-    });
+        }
+      });
+    }
   },
   delete(req, res) {
     const id = req.params.id;
@@ -126,29 +214,53 @@ module.exports = {
   },
 
   update(req, res) {
-    const{ firstName, lastName, email, firstAddress, secondAddress, postCode, cityId} = req.body;
+    const {
+      firstName,
+      lastName,
+      email,
+      firstAddress,
+      secondAddress,
+      postCode,
+      cityId,
+    } = req.body;
     const id = req.params.id;
+
+    const photo = req.file?req.file.filename:"";
     return query
-      .update(id, { firstName,lastName,email, firstAddress, secondAddress, postCode, cityId })
-      .then((user) => res.status(OK).send({ error: false,message: savedSuccess, data: user }))
+      .update(id, {
+        firstName,
+        lastName,
+        email,
+        firstAddress,
+        secondAddress,
+        postCode,
+        cityId,
+        photo
+      })
+      .then((user) =>
+        res.status(OK).send({ error: false, message: savedSuccess, data: user })
+      )
       .catch((error) => res.status(SERVER_ERROR).send(error));
   },
   updatePhoto(req, res) {
-   
     const id = req.params.id;
     if (req.file) {
       return query
         .update(id, { photo: req.file.filename })
         .then((user) => res.status(OK).send({ error: false, data: user }))
-        .catch((error) => res.status(SERVER_ERROR).send({error:true, message:serverError}));
+        .catch((error) =>
+          res.status(SERVER_ERROR).send({ error: true, message: serverError })
+        );
     }
-    res.status(SERVER_ERROR).send({error:true, message:serverError})
+    res.status(SERVER_ERROR).send({ error: true, message: serverError });
   },
 
   findAll(req, res) {
     return query
       .findAll()
       .then((user) => res.status(OK).send({ error: false, data: user }))
-      .catch((error) => res.status(SERVER_ERROR).send({error:true, message:serverError}));
+      .catch((error) =>
+        res.status(SERVER_ERROR).send({ error: true, message: serverError })
+      );
   },
 };

@@ -7,20 +7,20 @@ module.exports = {
         primaryKey: true,
         type: Sequelize.UUID
       },
-      value: {
+      rating: {
         type: Sequelize.STRING
       },
       content: {
         type: Sequelize.STRING
       },
-      productId: {
-        type: Sequelize.UUID,
-        references: {
-          model: 'Products',
-          key: 'id',
-          as: 'productId',
-        },
-      },
+      // productId: {
+      //   type: Sequelize.UUID,
+      //   references: {
+      //     model: 'Products',
+      //     key: 'id',
+      //     as: 'productId',
+      //   },
+      // },
       userId: {
         type: Sequelize.UUID,
         references: {

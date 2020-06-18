@@ -3,7 +3,7 @@ module.exports = (sequelize, DataTypes) => {
   const Rating = sequelize.define(
     "Rating",
     {
-      value: DataTypes.STRING,
+      rating: DataTypes.STRING,
       title: DataTypes.STRING,
       content: DataTypes.STRING
     },
@@ -11,9 +11,9 @@ module.exports = (sequelize, DataTypes) => {
   );
   Rating.associate = function (models) {
     // associations can be defined here
-    Rating.belongsTo(models.Product, {
-      foreignKey: "productId",
-    });
+    // Rating.belongsTo(models.Product, {
+    //   foreignKey: "productId",
+    // });
     Rating.belongsTo(models.User, {
       foreignKey: "userId",
     });

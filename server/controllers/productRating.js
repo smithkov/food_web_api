@@ -1,4 +1,4 @@
-const Rating = require("../models").Rating;
+const ProductRating = require("../models").ProductRating;
 const Query = new require("../queries/crud");
 const validate = require("../validations/validation");
 const {
@@ -8,14 +8,15 @@ const {
   Messages,
 } = require("../errors/statusCode");
 const { serverError, ratingSuccess, updateSuccess } = Messages;
-const query = new Query(Rating);
+const query = new Query(ProductRating);
 
 module.exports = {
   create(req, res) {
-    const { title, rating, content,userId, shopId } = req.body;
-
+    const { title, rating, content,userId, shopId, productId } = req.body;
+    
+    
     return query
-      .add({ title, rating, userId, shopId, content })
+      .add({ title, rating, userId, shopId, content, productId })
       .then((rating) =>
         res.status(OK).send({ data: rating, message: ratingSuccess })
       )
@@ -43,11 +44,11 @@ module.exports = {
       );
   },
 
-  findByShop(req, res) {
-    const shopId = req.body.shopId;
+  findByProduct(req, res) {
+    const productId = req.body.productId;
     
     return query
-      .findAllWithParam({shopId})
+      .findAllWithParam({productId})
       .then((rating) => res.status(OK).send({ error: false, data: rating }))
       .catch((error) =>{
         res.status(SERVER_ERROR).send({ error: true, message: serverError })}

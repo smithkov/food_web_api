@@ -11,5 +11,7 @@ module.exports = (app) => {
 
   app.patch(rootUrl('rating/:id'), controller.update);
 
+  app.post(rootUrl('rating/shop'), controller.findByShop);
+
   app.delete(rootUrl('rating/:id'), controller.delete);
 };

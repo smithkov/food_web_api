@@ -7,7 +7,9 @@ module.exports = (sequelize, DataTypes) => {
     bio: DataTypes.STRING,
     firstAddress: DataTypes.STRING,
     secondAddress: DataTypes.STRING,
-    postCode: DataTypes.STRING
+    postCode: DataTypes.STRING,
+    shopUrl: DataTypes.STRING,
+    notice: DataTypes.STRING
   }, {});
   VirtualShop.associate = function(models) {
     
@@ -42,6 +44,10 @@ module.exports = (sequelize, DataTypes) => {
     VirtualShop.hasMany(models.Rating, {
       foreignKey: 'shopId',
       as: 'ratings',
+    });
+    VirtualShop.hasMany(models.ProductRating, {
+      foreignKey: 'shopId',
+      as: 'productRatings',
     });
     VirtualShop.belongsTo(models.City, { foreignKey: "cityId" });
     

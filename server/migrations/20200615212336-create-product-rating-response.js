@@ -1,26 +1,22 @@
 "use strict";
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable("VirtualShops", {
+    return queryInterface.createTable("ProductRatingResponses", {
       id: {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID,
       },
-      shopName: {
+      content: {
         type: Sequelize.STRING,
       },
-      logo: {
-        type: Sequelize.STRING,
-      },
-      totalSale: {
-        type: Sequelize.STRING,
-      },
-      bio: {
-        type: Sequelize.STRING,
-      },
-      shopUrl: {
-        type: Sequelize.STRING,
+      ratingId: {
+        type: Sequelize.UUID,
+        references: {
+          model: "ProductRatings",
+          key: "id",
+          as: "ratingId",
+        },
       },
       userId: {
         type: Sequelize.UUID,
@@ -28,14 +24,6 @@ module.exports = {
           model: "Users",
           key: "id",
           as: "userId",
-        },
-      },
-      shopTypeId: {
-        type: Sequelize.UUID,
-        references: {
-          model: "ShopTypes",
-          key: "id",
-          as: "shopTypeId",
         },
       },
       createdAt: {
@@ -49,6 +37,6 @@ module.exports = {
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable("VirtualShops");
+    return queryInterface.dropTable("ProductRatingResponses");
   },
 };

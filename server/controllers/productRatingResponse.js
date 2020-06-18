@@ -1,4 +1,4 @@
-const Rating = require("../models").Rating;
+const ProductRatingResponse = require("../models").ProductRatingResponse;
 const Query = new require("../queries/crud");
 const validate = require("../validations/validation");
 const {
@@ -7,17 +7,17 @@ const {
   VALIDATION_ERROR,
   Messages,
 } = require("../errors/statusCode");
-const { serverError, ratingSuccess, updateSuccess } = Messages;
-const query = new Query(Rating);
+const { serverError, savedSuccess, updateSuccess } = Messages;
+const query = new Query(ProductRatingResponse);
 
 module.exports = {
   create(req, res) {
-    const { title, rating, content,userId, shopId } = req.body;
+    const { content, ratingId, userId } = req.body;
 
     return query
-      .add({ title, rating, userId, shopId, content })
-      .then((rating) =>
-        res.status(OK).send({ data: rating, message: ratingSuccess })
+      .add({ content, ratingId, userId })
+      .then((ratingResponse) =>
+        res.status(OK).send({ data: ratingResponse, message: savedSuccess })
       )
       .catch((error) =>
         res.status(SERVER_ERROR).send({ error: true, message: serverError })
@@ -27,7 +27,7 @@ module.exports = {
     const id = req.params.id;
     return query
       .delete(id)
-      .then((rating) => res.status(OK).send({ error: false, data: id }))
+      .then((ratingResponse) => res.status(OK).send({ error: false, data: id }))
       .catch((error) =>
         res.status(SERVER_ERROR).send({ error: true, message: serverError })
       );
@@ -37,32 +37,23 @@ module.exports = {
     const id = req.params.id;
     return query
       .findPK(id)
-      .then((rating) => res.status(OK).send({ error: false, data: rating }))
+      .then((ratingResponse) =>
+        res.status(OK).send({ error: false, data: ratingResponse })
+      )
       .catch((error) =>
         res.status(SERVER_ERROR).send({ error: true, message: serverError })
       );
   },
 
-  findByShop(req, res) {
-    const shopId = req.body.shopId;
-    
-    return query
-      .findAllWithParam({shopId})
-      .then((rating) => res.status(OK).send({ error: false, data: rating }))
-      .catch((error) =>{
-        res.status(SERVER_ERROR).send({ error: true, message: serverError })}
-      );
-  },
-
   update(req, res) {
-    const { title, rating, userId, shopId, content } = req.body;
+    const { content, ratingId, userId } = req.body;
     const id = req.params.id;
     return query
-      .update(id, { title, rating, userId, shopId, content })
-      .then((rating) =>
+      .update(id, { content, ratingId, userId })
+      .then((ratingResponse) =>
         res
           .status(OK)
-          .send({ error: false, message: updateSuccess, data: rating })
+          .send({ error: false, message: updateSuccess, data: ratingResponse })
       )
       .catch((error) =>
         res.status(SERVER_ERROR).send({ error: true, message: serverError })
@@ -72,7 +63,9 @@ module.exports = {
   findAll(req, res) {
     return query
       .findAll()
-      .then((rating) => res.status(OK).send({ error: false, data: rating }))
+      .then((ratingResponse) =>
+        res.status(OK).send({ error: false, data: ratingResponse })
+      )
       .catch((error) =>
         res.status(SERVER_ERROR).send({ error: true, message: serverError })
       );

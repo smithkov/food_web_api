@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
     password: DataTypes.STRING,
     ip: DataTypes.STRING,
     email: DataTypes.STRING,
+    source: DataTypes.STRING,
     lastLogin: DataTypes.DATE,
     photo: DataTypes.STRING,
     firstAddress: DataTypes.STRING,
@@ -50,6 +51,15 @@ module.exports = (sequelize, DataTypes) => {
     User.hasMany(models.RatingResponse, {
       foreignKey: 'userId',
       as: 'ratingResponses',
+    });
+
+    User.hasMany(models.ProductRating, {
+      foreignKey: 'userId',
+      as: 'productRatings',
+    });
+    User.hasMany(models.ProductRatingResponse, {
+      foreignKey: 'userId',
+      as: 'productRatingResponses'
     });
 
     User.belongsTo(models.City, { foreignKey: "cityId" });
