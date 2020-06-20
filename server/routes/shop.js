@@ -15,6 +15,8 @@ module.exports = (app) => {
 
   app.get(rootUrl("shops"), controller.findAll);
 
+  app.get(rootUrl("shop/duration"), controller.findDuration);
+
   app.post(rootUrl("shopByName"), controller.findShopByName);
 
   app.post(rootUrl("shopByUrl"), controller.findShopByUrl);

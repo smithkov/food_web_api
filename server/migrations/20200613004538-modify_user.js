@@ -15,22 +15,22 @@ module.exports = {
       //   type: Sequelize.STRING,
       //   allowNull: true,
       // }),
-      queryInterface.addColumn("VirtualShops", "deliveryPrice", {
+      queryInterface.addColumn("VirtualShops", "percentageDiscount", {
         type: Sequelize.STRING,
         allowNull: true,
       }),
-      queryInterface.addColumn("VirtualShops", "minOrder", {
+      queryInterface.addColumn("VirtualShops", "discountAmount", {
         type: Sequelize.STRING,
         allowNull: true,
       }),
-      queryInterface.addColumn("VirtualShops", "maxTime", {
-        type: Sequelize.STRING,
-        allowNull: true,
-      }),
-      queryInterface.addColumn("VirtualShops", "minTime", {
-        type: Sequelize.STRING,
-        allowNull: true,
-      }),
+      // queryInterface.addColumn("VirtualShops", "maxTime", {
+      //   type: Sequelize.STRING,
+      //   allowNull: true,
+      // }),
+      // queryInterface.addColumn("VirtualShops", "minTime", {
+      //   type: Sequelize.STRING,
+      //   allowNull: true,
+      // }),
       //  queryInterface.addColumn("ProductRatings", "productId", {
       //   type: Sequelize.UUID,
       //   references: {

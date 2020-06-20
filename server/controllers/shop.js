@@ -6,6 +6,7 @@ const model = require("../models");
 const Role = require("../models").Role;
 const Query = new require("../queries/crud");
 const validate = require("../validations/validation");
+const { duration } = require("../utility/global");
 const {
   SERVER_ERROR,
   OK,
@@ -214,11 +215,33 @@ module.exports = {
       );
   },
   updateSettings(req, res) {
-    const {deliveryPrice,minOrder,maxTime, minTime } = req.body;
+    console.log("----------------------------------------------------");
+    console.log(req.body);
+
+    const {
+      deliveryPrice,
+      minOrder,
+      maxTime,
+      minTime,
+      percentageDiscount,
+      discountAmount,
+      notice
+    } = req.body;
+    
     const id = req.params.id;
     return query
-      .update(id, { deliveryPrice,minOrder,maxTime, minTime })
-      .then((shop) => res.status(OK).send({ error: false, data: shop, message:savedSuccess }))
+      .update(id, {
+        deliveryPrice,
+        minOrder,
+        maxTime,
+        minTime,
+        percentageDiscount,
+        discountAmount,
+        notice
+      })
+      .then((shop) =>
+        res.status(OK).send({ error: false, data: shop, message: savedSuccess })
+      )
       .catch((error) =>
         res.status(SERVER_ERROR).send({ message: serverError, error: true })
       );
@@ -231,5 +254,8 @@ module.exports = {
       .catch((error) =>
         res.status(SERVER_ERROR).send({ message: serverError, error: true })
       );
+  },
+  findDuration(req, res) {
+    return res.status(OK).send({ error: false, data: duration });
   },
 };
