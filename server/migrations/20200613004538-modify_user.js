@@ -15,11 +15,15 @@ module.exports = {
       //   type: Sequelize.STRING,
       //   allowNull: true,
       // }),
-      queryInterface.addColumn("VirtualShops", "percentageDiscount", {
+      queryInterface.addColumn("Socials", "facebook", {
         type: Sequelize.STRING,
         allowNull: true,
       }),
-      queryInterface.addColumn("VirtualShops", "discountAmount", {
+      queryInterface.addColumn("Socials", "twitter", {
+        type: Sequelize.STRING,
+        allowNull: true,
+      }),
+      queryInterface.addColumn("Socials", "instagram", {
         type: Sequelize.STRING,
         allowNull: true,
       }),

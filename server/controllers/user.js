@@ -3,6 +3,7 @@ const Role = require("../models").Role;
 const Query = new require("../queries/crud");
 const validate = require("../validations/validation");
 const { system } = require("../utility/constants");
+const { ACCESS_TOKEN } = require("../utility/constants");
 const jwt = require("jsonwebtoken");
 
 const secret = process.env.SECRET;
@@ -82,18 +83,26 @@ module.exports = {
           {
             email: user.email,
             id: user.id,
+            firstName: user.firstName,
+            role: user.Role.name,
+            photo: user.photo,
           },
           secret,
           {
-            expiresIn: "1h",
+            expiresIn: "24h",
           }
         );
+        res.cookie(ACCESS_TOKEN, token, {
+          maxAge: 86400 * 1000,
+          httpOnly: true,
+        });
         return res.status(OK).send({
           error: false,
           token: token,
           data: {
-            email: user.email,
             id: user.id,
+            photo: user.photo,
+            firstName: user.firstName,
             fullName: `${user.firstName} ${user.lastName}`,
             role: user.Role.name,
             shopId: user.shops.length > 0 ? user.shops[0].id : null,
@@ -102,13 +111,12 @@ module.exports = {
       }
     });
   },
+
   socialSignIn: async (req, res) => {
     const failedLoginMessage = "Email or password is incorrect.";
     const { email, password, firstName, lastName, source } = req.body;
     const role = await roleQuery.findOne({ name: "Customer" });
-    console.log("------------------------------------------");
-    console.log(req.body);
-    console.log("------------------------------------------");
+
     const user = await query.findOne({ email: email });
     if (!user) {
       bcrypt.hash(password, 10, (err, hash) => {
@@ -126,8 +134,8 @@ module.exports = {
               roleId: role.id,
               source,
             })
-            .then((user) => {
-              
+            .then(async (user) => {
+              const newUser = await query.findPK(user.id);
               const token = jwt.sign(
                 {
                   email: email,
@@ -135,18 +143,20 @@ module.exports = {
                 },
                 secret,
                 {
-                  expiresIn: "1h",
+                  expiresIn: "48h",
                 }
               );
               res.status(OK).send({
                 error: false,
                 token: token,
                 data: {
-                  email: user.email,
-                  id: user.id,
-                  // fullName: `${user.firstName} ${user.lastName}`,
-                  // role: user.Role.name,
-                  // shopId: user.shops.length > 0 ? user.shops[0].id : null,
+                  email: newUser.email,
+                  id: newUser.id,
+                  photo: newUser.photo,
+                  firstName: newUser.firstName,
+                  fullName: `${newUser.firstName} ${newUser.lastName}`,
+                  role: newUser.Role.name,
+                  shopId: newUser.shops.length > 0 ? user.shops[0].id : null,
                 },
               });
             })
@@ -172,7 +182,7 @@ module.exports = {
             },
             secret,
             {
-              expiresIn: "1h",
+              expiresIn: "48h",
             }
           );
           return res.status(OK).send({
@@ -181,6 +191,8 @@ module.exports = {
             data: {
               email: user.email,
               id: user.id,
+              firstName: user.firstName,
+              photo: user.photo,
               fullName: `${user.firstName} ${user.lastName}`,
               role: user.Role.name,
               shopId: user.shops.length > 0 ? user.shops[0].id : null,
@@ -199,12 +211,24 @@ module.exports = {
   },
 
   isLogin(req, res) {
-    const id = req.body.id;
-    return query
-      .findPK(id)
-      .then((user) => res.status(OK).send({ error: false, data: user }))
-      .catch((error) => res.status(SERVER_ERROR).send(error));
+    console.log(req.userData);
+    res.status(OK).send({ error: false, data: req.userData });
   },
+
+  addToCart(req, res) {
+    const { shopName, data } = req.body;
+    res.cookie(shopName, data, { maxAge: 86400 * 1000, httpOnly: true });
+
+    res.status(OK).send()
+  },
+
+  getCart(req, res) {
+    const shopName = req.params.shopName;
+    const shopCookie = req.cookies[shopName];
+    if (shopCookie) res.status(OK).send({ data: shopCookie });
+    else res.status(OK).send({ data: null });
+  },
+
   findPk(req, res) {
     const id = req.params.id;
     return query
@@ -225,7 +249,7 @@ module.exports = {
     } = req.body;
     const id = req.params.id;
 
-    const photo = req.file?req.file.filename:"";
+    const photo = req.file ? req.file.filename : "";
     return query
       .update(id, {
         firstName,
@@ -235,7 +259,7 @@ module.exports = {
         secondAddress,
         postCode,
         cityId,
-        photo
+        photo,
       })
       .then((user) =>
         res.status(OK).send({ error: false, message: savedSuccess, data: user })

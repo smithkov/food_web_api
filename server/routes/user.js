@@ -9,9 +9,13 @@ module.exports = (app) => {
 
   app.post(rootUrl("user/login"), controller.signIn);
 
+  app.post(rootUrl("cart"), controller.addToCart);
+
+  app.get(rootUrl("getCart/:shopName"), controller.getCart);
+
   app.get(rootUrl("users"), controller.findAll);
 
-  app.post(rootUrl("user/isLogin"), auth, controller.isLogin);
+  app.get(rootUrl("user/isLogin"), auth, controller.isLogin);
 
   app.get(rootUrl("user/:id"), controller.findPk);
 
