@@ -24,6 +24,14 @@ module.exports = {
           as: 'productId',
         },
       },
+      shopId: {
+        type: Sequelize.UUID,
+        references: {
+          model: 'VirtualShops',
+          key: 'id',
+          as: 'productId',
+        },
+      },
       userId: {
         type: Sequelize.UUID,
         references: {

@@ -11,22 +11,38 @@ module.exports = {
       //     allowNull: true,
       //   }
       // ),
-      // queryInterface.addColumn("Users", "secondAddress", {
+      // queryInterface.addColumn("Transactions", "total", {
+      //   type: Sequelize.DECIMAL,
+      //   allowNull: true,
+      // }),
+      // queryInterface.addColumn("Transactions", "deliveryPrice", {
+      //   type: Sequelize.DECIMAL,
+      //   allowNull: true,
+      // }),
+      // queryInterface.addColumn("Transactions", "subTotal", {
+      //   type: Sequelize.DECIMAL,
+      //   allowNull: true,
+      // }),
+      // queryInterface.addColumn("Transactions", "offerDiscount", {
+      //   type: Sequelize.DECIMAL,
+      //   allowNull: true,
+      // }),
+      // queryInterface.addColumn("Transactions", "shopId", {
+      //   type: Sequelize.UUID,
+      //   references: {
+      //     model: "VirtualShops",
+      //     key: "id",
+      //     as: "shopId",
+      //   },
+      // }),
+      // queryInterface.addColumn("Socials", "twitter", {
       //   type: Sequelize.STRING,
       //   allowNull: true,
       // }),
-      queryInterface.addColumn("Socials", "facebook", {
-        type: Sequelize.STRING,
-        allowNull: true,
-      }),
-      queryInterface.addColumn("Socials", "twitter", {
-        type: Sequelize.STRING,
-        allowNull: true,
-      }),
-      queryInterface.addColumn("Socials", "instagram", {
-        type: Sequelize.STRING,
-        allowNull: true,
-      }),
+      // queryInterface.addColumn("Socials", "instagram", {
+      //   type: Sequelize.STRING,
+      //   allowNull: true,
+      // }),
       // queryInterface.addColumn("VirtualShops", "maxTime", {
       //   type: Sequelize.STRING,
       //   allowNull: true,

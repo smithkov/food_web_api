@@ -138,14 +138,21 @@ module.exports = {
               const newUser = await query.findPK(user.id);
               const token = jwt.sign(
                 {
-                  email: email,
-                  id: password,
+                  email: user.email,
+                  id: user.id,
+                  firstName: user.firstName,
+                  role: user.Role.name,
+                  photo: user.photo,
                 },
                 secret,
                 {
                   expiresIn: "48h",
                 }
               );
+              res.cookie(ACCESS_TOKEN, token, {
+                maxAge: 86400 * 1000,
+                httpOnly: true,
+              });
               res.status(OK).send({
                 error: false,
                 token: token,
@@ -168,23 +175,31 @@ module.exports = {
         }
       });
     } else {
-      bcrypt.compare(password, user.password, (err, result) => {
+      bcrypt.compare(password, user.password, async(err, result) => {
         if (err) {
           return res
             .status(FAILED_AUTH)
             .send({ error: true, message: failedLoginMessage });
         }
         if (result) {
+          const newUser = await query.findPK(user.id);
           const token = jwt.sign(
             {
-              email: user.email,
-              id: user.id,
+              email: newUser.email,
+              id: newUser.id,
+              firstName: newUser.firstName,
+              role: newUser.Role.name,
+              photo: newUser.photo,
             },
             secret,
             {
               expiresIn: "48h",
             }
           );
+          res.cookie(ACCESS_TOKEN, token, {
+            maxAge: 86400 * 1000,
+            httpOnly: true,
+          });
           return res.status(OK).send({
             error: false,
             token: token,
@@ -211,7 +226,6 @@ module.exports = {
   },
 
   isLogin(req, res) {
-    console.log(req.userData);
     res.status(OK).send({ error: false, data: req.userData });
   },
 
@@ -219,12 +233,13 @@ module.exports = {
     const { shopName, data } = req.body;
     res.cookie(shopName, data, { maxAge: 86400 * 1000, httpOnly: true });
 
-    res.status(OK).send()
+    res.status(OK).send();
   },
 
   getCart(req, res) {
     const shopName = req.params.shopName;
     const shopCookie = req.cookies[shopName];
+    console.log("cokkiesssssssssssssss", shopCookie);
     if (shopCookie) res.status(OK).send({ data: shopCookie });
     else res.status(OK).send({ data: null });
   },
