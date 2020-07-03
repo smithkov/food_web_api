@@ -17,6 +17,8 @@ module.exports = (app) => {
 
   app.patch(rootUrl("user/:id"), upload.single("photo"), controller.update);
 
+  app.post(rootUrl("userAddress/update"),auth, controller.updateAddress);
+
   app.patch(
     rootUrl("user/photo/:id"),
     upload.single("photo"),

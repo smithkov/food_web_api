@@ -175,7 +175,7 @@ module.exports = {
         }
       });
     } else {
-      bcrypt.compare(password, user.password, async(err, result) => {
+      bcrypt.compare(password, user.password, async (err, result) => {
         if (err) {
           return res
             .status(FAILED_AUTH)
@@ -239,7 +239,7 @@ module.exports = {
   getCart(req, res) {
     const shopName = req.params.shopName;
     const shopCookie = req.cookies[shopName];
-    console.log("cokkiesssssssssssssss", shopCookie);
+
     if (shopCookie) res.status(OK).send({ data: shopCookie });
     else res.status(OK).send({ data: null });
   },
@@ -251,7 +251,24 @@ module.exports = {
       .then((user) => res.status(OK).send({ error: false, data: user }))
       .catch((error) => res.status(SERVER_ERROR).send(error));
   },
+  updateAddress(req, res) {
+    const { firstAddress, secondAddress, postCode, phone } = req.body;
 
+    const userId = req.userData.id;
+    return query
+      .update(userId, {
+        firstAddress,
+        secondAddress,
+        postCode,
+        phone,
+      })
+      .then((user) =>
+        res.status(OK).send({ error: false, message: savedSuccess, data: user })
+      )
+      .catch((error) =>
+        res.status(SERVER_ERROR).send({ error: true, message: serverError })
+      );
+  },
   update(req, res) {
     const {
       firstName,
@@ -260,6 +277,7 @@ module.exports = {
       firstAddress,
       secondAddress,
       postCode,
+      phone,
       cityId,
     } = req.body;
     const id = req.params.id;
@@ -274,6 +292,7 @@ module.exports = {
         secondAddress,
         postCode,
         cityId,
+        phone,
         photo,
       })
       .then((user) =>

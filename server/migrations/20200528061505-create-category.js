@@ -20,15 +20,7 @@ module.exports = {
       updatedAt: {
         allowNull: false,
         type: Sequelize.DATE
-      },
-      shopTypeId: {
-        type: Sequelize.UUID,
-        references: {
-          model: 'ShopTypes',
-          key: 'id',
-          as: 'shopTypeId',
-        },
-      },
+      }
     });
   },
   down: (queryInterface, Sequelize) => {

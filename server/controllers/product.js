@@ -15,8 +15,32 @@ const shopQuery = new Query(Shop);
 
 module.exports = {
   create: async (req, res) => {
-    try {
-      const {
+    const {
+      name,
+      price,
+      discountPrice,
+      quantity,
+      desc,
+      weight,
+      originId,
+      shopId,
+      categoryId,
+      subCategoryId,
+      unitId,
+      userId,
+    } = req.body;
+
+    const { error, value } = validate.nameSchema({ name: name });
+
+    const shop = await shopQuery.findOne({ userId: userId });
+
+    if (!shop)
+      return res
+        .status(VALIDATION_ERROR)
+        .send({ message: "No shop associated with the user", error: true });
+
+    return query
+      .add({
         name,
         price,
         discountPrice,
@@ -24,66 +48,25 @@ module.exports = {
         desc,
         weight,
         originId,
-        shopId,
+        shopId: shop.id,
         categoryId,
         subCategoryId,
-        unitId,
+        originId,
         userId,
-      } = req.body;
-
-      const { error, value } = validate.nameSchema({ name: name });
-
-      const shop = await shopQuery.findOne({ userId: userId });
-
-      if (!shop)
-        return res
-          .status(VALIDATION_ERROR)
-          .send({ message: "No shop associated with the user", error: true });
-
-      if (!error) {
-        return query
-          .add({
-            name,
-            price,
-            discountPrice,
-            quantity,
-            desc,
-            weight,
-            originId,
-            shopId: shop.id,
-            categoryId,
-            subCategoryId,
-            originId,
-            userId,
-            unitId,
-          })
-          .then((product) => {
-            for (image of req.files) {
-              imageQuery.add({
-                imagePath: image.filename,
-                productId: product.id,
-              });
-            }
-            res.status(OK).send({
-              error: false,
-              message: `${product.name} was added successfully.`,
-            });
-          })
-          .catch((error) =>
-            res
-              .status(SERVER_ERROR)
-              .send({ message: Messages.serverError, error: true })
-          );
-      } else {
-        return res
-          .status(VALIDATION_ERROR)
-          .send({ message: error, error: true });
-      }
-    } catch {
-      return res
-        .status(SERVER_ERROR)
-        .send({ message: Messages.serverError, error: true });
-    }
+        photo: req.file.filename,
+        unitId: unitId ? unitId : null,
+      })
+      .then((product) => {
+        res.status(OK).send({
+          error: false,
+          message: `${product.name} was added successfully.`,
+        });
+      })
+      .catch((error) =>
+        res
+          .status(SERVER_ERROR)
+          .send({ message: Messages.serverError, error: true })
+      );
   },
   findByCategory(req, res) {
     const id = req.params.id;
@@ -136,11 +119,37 @@ module.exports = {
       .catch((error) => res.status(SERVER_ERROR).send(error));
   },
 
-  update(req, res) {
-    const name = req.body.name;
+  update:async(req, res)=> {
+    const {
+      name,
+      price,
+      discountPrice,
+      quantity,
+      desc,
+      weight,
+      originId,
+      categoryId,
+      unitId,
+      userId,
+      photo
+    } = req.body;
     const id = req.params.id;
+    const mealPhoto = req.file?req.file.filename:photo;
     return query
-      .update(id, { name: name })
+      .update(id, {
+        name,
+        price,
+        discountPrice,
+        quantity,
+        desc,
+        weight,
+        originId,
+        categoryId,
+        originId,
+        userId,
+        photo: mealPhoto,
+        unitId: unitId ? unitId : null,
+      })
       .then((product) => res.status(OK).send({ error: false, data: product }))
       .catch((error) => res.status(SERVER_ERROR).send(error));
   },
@@ -148,8 +157,8 @@ module.exports = {
   findAll(req, res) {
     return query
       .findAll()
-      .then((product) => res.status(OK).send({ error: false, data: product }))
-      .catch((error) => res.status(SERVER_ERROR).send(error));
+      .then((product) => res.status(OK).send({ error: false, data: product }));
+    //.catch((error) => res.status(SERVER_ERROR).send(error));
     // return query
     //   .findAll()
     //   .then((product) => res.status(OK).send({ error: false, data: product }))

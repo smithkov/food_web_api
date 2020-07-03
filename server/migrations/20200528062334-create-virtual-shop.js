@@ -30,14 +30,6 @@ module.exports = {
           as: "userId",
         },
       },
-      shopTypeId: {
-        type: Sequelize.UUID,
-        references: {
-          model: "ShopTypes",
-          key: "id",
-          as: "shopTypeId",
-        },
-      },
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

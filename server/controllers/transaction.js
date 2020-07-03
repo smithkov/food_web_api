@@ -21,6 +21,7 @@ module.exports = {
         subTotal,
         offerDiscount,
         orders,
+        message
       } = findOrder;
       const t = await model.sequelize.transaction();
       try {
@@ -33,10 +34,10 @@ module.exports = {
             deliveryPrice,
             subTotal,
             offerDiscount,
+            message
           },
           t
         );
-
         const transactionId = createTransaction.id;
         for (let item of orders) {
           const { name, quantity, price, id } = item;
@@ -46,7 +47,6 @@ module.exports = {
               price,
               total: quantity * price,
               name,
-              productId: id,
               transactionId,
             },
             t
@@ -79,6 +79,16 @@ module.exports = {
     const id = req.params.id;
     return query
       .findPK(id)
+      .then((transaction) =>
+        res.status(OK).send({ error: false, data: transaction })
+      )
+      .catch((error) => res.status(SERVER_ERROR).send(error));
+  },
+
+  findTransactionByUser(req, res) {
+    const userId = req.body.userId;
+    return query
+      .findAllWithParam({userId})
       .then((transaction) =>
         res.status(OK).send({ error: false, data: transaction })
       )

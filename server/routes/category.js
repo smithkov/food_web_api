@@ -7,8 +7,6 @@ module.exports = (app) => {
 
   app.get(rootUrl('categories'), controller.findAll);
 
-  app.get(rootUrl('categoriesByShop/:id'), controller.findByShopType);
-
   app.get(rootUrl('category/:id'), controller.findPk);
 
   app.patch(rootUrl('category/:id'), controller.update);

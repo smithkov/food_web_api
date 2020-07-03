@@ -16,6 +16,9 @@ module.exports = {
       refNo: {
         type: Sequelize.STRING
       },
+      message: {
+        type: Sequelize.STRING
+      },
       productId: {
         type: Sequelize.UUID,
         references: {

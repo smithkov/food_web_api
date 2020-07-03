@@ -6,4 +6,6 @@ module.exports = (app) => {
   //upload.single('logo'),
 
   app.post(rootUrl("transaction"), auth, controller.create);
+
+  app.post(rootUrl("user/transaction"), auth, controller.findTransactionByUser);
 };

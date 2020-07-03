@@ -2,6 +2,7 @@
 module.exports = (sequelize, DataTypes) => {
   const Product = sequelize.define('Product', {
     name: DataTypes.STRING,
+    photo: DataTypes.STRING,
     price: DataTypes.STRING,
     discountPrice: DataTypes.STRING,
     quantity: DataTypes.STRING,
@@ -28,10 +29,7 @@ module.exports = (sequelize, DataTypes) => {
     Product.belongsTo(models.Category, {
       foreignKey: 'categoryId'
     });
-    Product.hasMany(models.ProductImage, {
-      foreignKey: 'productId',
-      as: 'productImages',
-    });
+  
     Product.hasMany(models.ProductRating, {
       foreignKey: 'productId',
       as: 'productRatings',
@@ -40,10 +38,7 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: 'productId',
       as: 'sponsors',
     });
-    Product.hasMany(models.Transaction, {
-      foreignKey: 'productId',
-      as: 'transactions',
-    });
+  
     Product.hasMany(models.SoldProduct, {
       foreignKey: "productId",
       as: "soldProducts",

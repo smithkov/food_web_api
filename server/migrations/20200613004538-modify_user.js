@@ -11,10 +11,14 @@ module.exports = {
       //     allowNull: true,
       //   }
       // ),
-      // queryInterface.addColumn("Transactions", "total", {
-      //   type: Sequelize.DECIMAL,
+      // queryInterface.addColumn("Users", "phone", {
+      //   type: Sequelize.STRING,
       //   allowNull: true,
       // }),
+      queryInterface.addColumn('Products', 'photo', {
+        type: Sequelize.STRING,
+        allowNull: true
+      }),
       // queryInterface.addColumn("Transactions", "deliveryPrice", {
       //   type: Sequelize.DECIMAL,
       //   allowNull: true,

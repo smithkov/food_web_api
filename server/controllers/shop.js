@@ -29,7 +29,6 @@ module.exports = {
   create: async (req, res) => {
     const {
       shopName,
-      shopTypeId,
       userId,
       firstAddress,
       secondAddress,
@@ -103,7 +102,6 @@ module.exports = {
         {
           shopName: shopName,
           logo: logo,
-          shopTypeId: shopTypeId,
           userId: user.id,
           firstAddress,
           secondAddress,
@@ -215,9 +213,6 @@ module.exports = {
       );
   },
   updateSettings(req, res) {
-    console.log("----------------------------------------------------");
-    console.log(req.body);
-
     const {
       deliveryPrice,
       minOrder,

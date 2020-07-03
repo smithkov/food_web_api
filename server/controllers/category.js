@@ -8,14 +8,14 @@ const shopQuery = new Query(VirtualShop);
 
 module.exports = {
   create(req, res) {
-    const { name, shopTypeId } = req.body;
+    const { name } = req.body;
     console.log(name);
 
     const { error, value } = validate.nameSchema({ name: name });
 
     if (!error) {
       return query
-        .add({ name: name, shopTypeId: shopTypeId })
+        .add({ name: name })
         .then((category) => res.status(OK).send(category))
         .catch((error) => res.status(SERVER_ERROR).send(error));
     } else {
@@ -36,22 +36,6 @@ module.exports = {
       .findPK(id)
       .then((category) => res.status(OK).send({ error: false, data: category }))
       .catch((error) => res.status(SERVER_ERROR).send(error));
-  },
-  findByShopType: async (req, res) => {
-    try {
-      const userId = req.params.id;
-      const shop = await shopQuery.findOne({ userId: userId });
-      if (!shopQuery) {
-        return res
-          .status(SERVER_ERROR)
-          .send({ error: true, message: "No shop associated with the user" });
-      }
-
-      const categoryByShopType = await query.findAllWithParam({
-        shopTypeId: shop.shopTypeId,
-      });
-      return res.status(OK).send({ error: false, data: categoryByShopType });
-    } catch (err) {}
   },
 
   update(req, res) {

@@ -8,6 +8,7 @@ module.exports = (sequelize, DataTypes) => {
       subTotal: DataTypes.DECIMAL,
       offerDiscount: DataTypes.DECIMAL,
       refNo: DataTypes.STRING,
+      message: DataTypes.STRING,
     },
     {}
   );
@@ -16,9 +17,7 @@ module.exports = (sequelize, DataTypes) => {
     Transaction.belongsTo(models.User, {
       foreignKey: "userId",
     });
-    Transaction.belongsTo(models.Product, {
-      foreignKey: "productId",
-    });
+    
     Transaction.belongsTo(models.VirtualShop, {
       foreignKey: "shopId",
     });

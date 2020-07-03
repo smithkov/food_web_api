@@ -72,7 +72,7 @@ module.exports = {
     if (message) {
       const update = await query.update(findOrder.id, { message });
     }
-    return res.status(OK).send({ error: false, data: update });
+    return res.status(OK).send({ error: false, data: null });
   },
 
   findByTempId(req, res) {

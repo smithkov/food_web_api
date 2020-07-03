@@ -30,9 +30,7 @@ module.exports = (sequelize, DataTypes) => {
     VirtualShop.belongsTo(models.User, {
       foreignKey: "userId",
     });
-    VirtualShop.belongsTo(models.ShopType, {
-      foreignKey: "shopTypeId",
-    });
+    
     VirtualShop.hasMany(models.ShopBanner, {
       foreignKey: "shopId",
       as: "shopBanners",
