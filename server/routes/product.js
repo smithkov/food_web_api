@@ -14,9 +14,11 @@ module.exports = (app) => {
 
   app.get(rootUrl("products"), controller.findAll);
 
+  app.get(rootUrl("front-page-meals"), controller.frontPageMeal);
+
   app.get(rootUrl("product/:id"), controller.findPk);
 
-  app.patch(rootUrl("product/:id"),upload.single("image"), controller.update);
+  app.patch(rootUrl("product/:id"), upload.single("image"), controller.update);
 
   app.delete(rootUrl("product/:id"), controller.delete);
 };

@@ -13,6 +13,8 @@ module.exports = (app) => {
     controller.create
   );
 
+  app.post(rootUrl("create-shop"), controller.createShopInfo);
+
   app.get(rootUrl("shops"), controller.findAll);
 
   app.get(rootUrl("shop/duration"), controller.findDuration);

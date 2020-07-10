@@ -45,6 +45,13 @@ class Query {
     });
   }
 
+  findAllLimit(lim) {
+    return this.model.findAll({
+      limit: lim,
+      include: [{ all: true }],
+    });
+  }
+
   findAllWithParam(param) {
     return this.model.findAll({ where: param, include: [{ all: true }] });
   }

@@ -95,6 +95,16 @@ module.exports = {
       .catch((error) => res.status(SERVER_ERROR).send(error));
   },
 
+  findTransactionByShop(req, res) {
+    const shopId = req.body.shopId;
+    return query
+      .findAllWithParam({shopId})
+      .then((transaction) =>
+        res.status(OK).send({ error: false, data: transaction })
+      )
+      .catch((error) => res.status(SERVER_ERROR).send(error));
+  },
+
   update(req, res) {
     const name = req.body.name;
     const id = req.params.id;

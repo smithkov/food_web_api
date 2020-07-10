@@ -153,7 +153,17 @@ module.exports = {
       .then((product) => res.status(OK).send({ error: false, data: product }))
       .catch((error) => res.status(SERVER_ERROR).send(error));
   },
-
+  
+    frontPageMeal(req, res) {
+      return query
+        .findAllLimit(5)
+        .then((product) => res.status(OK).send({ error: false, data: product }));
+      //.catch((error) => res.status(SERVER_ERROR).send(error));
+      // return query
+      //   .findAll()
+      //   .then((product) => res.status(OK).send({ error: false, data: product }))
+      //   .catch((error) => res.status(SERVER_ERROR).send(error));
+    },
   findAll(req, res) {
     return query
       .findAll()

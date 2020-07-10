@@ -3,8 +3,10 @@ const Role = require("../models").Role;
 const Query = new require("../queries/crud");
 const validate = require("../validations/validation");
 const { system } = require("../utility/constants");
+const Mail = require("../utility/mail");
 const { ACCESS_TOKEN } = require("../utility/constants");
 const jwt = require("jsonwebtoken");
+const nodemailer = require("nodemailer");
 
 const secret = process.env.SECRET;
 
@@ -33,23 +35,46 @@ module.exports = {
 
       const emailExist = await query.findOne({ email: email });
       if (!emailExist) {
-        bcrypt.hash(password, 10, (err, hash) => {
+        bcrypt.hash(password, 10, async(err, hash) => {
           if (err) {
             return res
               .status(SERVER_ERROR)
               .send({ message: serverError, error: true });
           } else {
-            return query
-              .add({
-                email: email,
-                password: hash,
-                firstName: firstName,
-                source: system,
-                lastName: lastName,
-                roleId: role.id,
-              })
-              .then((user) => res.status(OK).send(user))
-              .catch((error) => res.status(SERVER_ERROR).send(error));
+            const newUser = await query
+            .add({
+              email: email,
+              password: hash,
+              firstName: firstName,
+              source: system,
+              lastName: lastName,
+              roleId: role.id,
+              
+            });
+            const user = await query.findPK(newUser.id);
+            const token = jwt.sign(
+              {
+                email: user.email,
+                id: user.id,
+                firstName: user.firstName,
+                role: user.Role.name,
+                photo: user.photo,
+                shopId: user.shops.length>0?user.shops[0].id:null
+    
+              },
+              secret,
+              {
+                expiresIn: "24h",
+              }
+            );
+            res.cookie(ACCESS_TOKEN, token, {
+              maxAge: 86400 * 1000,
+              httpOnly: true,
+            });
+            return res.status(OK).send({
+              error: false,
+              token: token,
+            });
           }
         });
       } else
@@ -79,6 +104,7 @@ module.exports = {
           .send({ error: true, message: failedLoginMessage });
       }
       if (result) {
+
         const token = jwt.sign(
           {
             email: user.email,
@@ -86,6 +112,8 @@ module.exports = {
             firstName: user.firstName,
             role: user.Role.name,
             photo: user.photo,
+            shopId: user.shops.length>0?user.shops[0].id:null
+
           },
           secret,
           {
@@ -216,6 +244,28 @@ module.exports = {
         }
       });
     }
+  },
+  hasExpired: async (req, res) => {
+    try {
+      const id = req.params.id;
+
+      const user = await query.findPK(id);
+      let hasExpired = false;
+      if (user) {
+        const expiry = user.expiry;
+        const currentDate = new Date();
+        if (currentDate > expiry) hasExpired = true;
+      }
+
+      res.status(OK).send({ hasExpired });
+    } catch (err) {
+      console.log(err);
+      res.status(SERVER_ERROR).send({ hasExpired: true });
+    }
+  },
+  logout(req, res) {
+    res.clearCookie(ACCESS_TOKEN);
+    return res.status(OK).send({ error: false, data: id });
   },
   delete(req, res) {
     const id = req.params.id;

@@ -1,11 +1,12 @@
 const Shop = require("../models").VirtualShop;
-
+const bcrypt = require("bcrypt");
 const User = require("../models").User;
 const Banner = require("../models").ShopBanner;
 const model = require("../models");
 const Role = require("../models").Role;
 const Query = new require("../queries/crud");
 const validate = require("../validations/validation");
+const Mail = require("../utility/mail");
 const { duration } = require("../utility/global");
 const {
   SERVER_ERROR,
@@ -129,11 +130,75 @@ module.exports = {
     } catch (err) {
       await t.rollback();
 
-      console.log(err);
       res.status(SERVER_ERROR).send({ message: serverError, error: true });
     }
   },
+  createShopInfo: async (req, res) => {
+    const t = await model.sequelize.transaction();
+    const {
+      shopName,
+      firstAddress,
+      phone,
+      postCode,
+      firstName,
+      lastName,
+      email,
+      password,
+      cityId,
+    } = req.body;
 
+    try {
+      const role = await roleQuery.findOne({ name: "Seller" });
+      const currentDate = new Date();
+      const date24Hrs = currentDate.setDate(currentDate.getDate() +1)
+      const emailExist = await userQuery.findOne({ email });
+      if (!emailExist) {
+        bcrypt.hash(password, 10, async (err, hash) => {
+          if (err) {
+            return res
+              .status(SERVER_ERROR)
+              .send({ message: serverError, error: true });
+          } else {
+            const user = await userQuery.addTransact(
+              {
+                email,
+                password: hash,
+                firstName,
+                lastName,
+                roleId:role.id,
+                expiry: date24Hrs,
+              },
+              t
+            );
+            const createShop = await query.addTransact(
+              {
+                shopName,
+                userId: user.id,
+                firstAddress,
+                postCode,
+                cityId,
+                phone,
+                shopUrl: shopName,
+              },
+              t
+            );
+            await t.commit();
+            Mail.send(email,firstName, shopName);
+            return res.status(OK).send({
+              error: false, id:user.id
+            });
+          }
+        });
+      } else {
+        return res
+          .status(VALIDATION_ERROR)
+          .send({ message: "Email already exist!", error: true });
+      }
+    } catch (err) {
+      await t.rollback();
+      res.status(SERVER_ERROR).send({ message: serverError, error: true });
+    }
+  },
   delete(req, res) {
     const id = req.params.id;
     return query
@@ -220,9 +285,9 @@ module.exports = {
       minTime,
       percentageDiscount,
       discountAmount,
-      notice
+      notice,
     } = req.body;
-    
+
     const id = req.params.id;
     return query
       .update(id, {
@@ -232,7 +297,7 @@ module.exports = {
         minTime,
         percentageDiscount,
         discountAmount,
-        notice
+        notice,
       })
       .then((shop) =>
         res.status(OK).send({ error: false, data: shop, message: savedSuccess })

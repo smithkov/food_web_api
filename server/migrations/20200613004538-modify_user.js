@@ -15,8 +15,8 @@ module.exports = {
       //   type: Sequelize.STRING,
       //   allowNull: true,
       // }),
-      queryInterface.addColumn('Products', 'photo', {
-        type: Sequelize.STRING,
+      queryInterface.addColumn('Users', 'expiry', {
+        type: Sequelize.DATE,
         allowNull: true
       }),
       // queryInterface.addColumn("Transactions", "deliveryPrice", {

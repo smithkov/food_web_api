@@ -15,6 +15,10 @@ module.exports = (app) => {
 
   app.get(rootUrl("user/:id"), controller.findPk);
 
+  app.get(rootUrl("hasUserExpired/:id"), controller.hasExpired);
+
+  app.post(rootUrl("logout"), controller.logout);
+
   app.patch(rootUrl("user/:id"), upload.single("photo"), controller.update);
 
   app.post(rootUrl("userAddress/update"),auth, controller.updateAddress);

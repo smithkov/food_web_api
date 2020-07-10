@@ -8,4 +8,8 @@ module.exports = (app) => {
   app.post(rootUrl("transaction"), auth, controller.create);
 
   app.post(rootUrl("user/transaction"), auth, controller.findTransactionByUser);
+
+  app.post(rootUrl("shop/transaction"), auth, controller.findTransactionByShop);
+
+  app.get(rootUrl("shop/transaction/:id"), auth, controller.findPk);
 };

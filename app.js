@@ -35,7 +35,6 @@ const refPath = "./server/routes/";
 
 require(`${refPath}category`)(app);
 require(`${refPath}subCategory`)(app);
-require(`${refPath}shopType`)(app);
 require(`${refPath}city`)(app);
 require(`${refPath}day`)(app);
 require(`${refPath}unit`)(app);
@@ -51,5 +50,8 @@ require(`${refPath}rating`)(app);
 require(`${refPath}ratingResponse`)(app);
 require(`${refPath}productRating`)(app);
 require(`${refPath}productRatingResponse`)(app);
+require(`${refPath}order`)(app);
+require(`${refPath}transaction`)(app);
+require(`${refPath}soldProduct`)(app);
 app.use((err, req, res, next) => res.json(err));
 module.exports = app;
