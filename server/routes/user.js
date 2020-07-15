@@ -7,6 +7,8 @@ module.exports = (app) => {
 
   app.post(rootUrl("user/socialRegister"), controller.socialSignIn);
 
+  app.post(rootUrl("findEmail"), controller.findEmail);
+
   app.post(rootUrl("user/login"), controller.signIn);
 
   app.get(rootUrl("users"), controller.findAll);

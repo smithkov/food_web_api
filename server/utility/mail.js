@@ -1,6 +1,6 @@
 const nodemailer = require("nodemailer");
 
-module.exports.send = function (recipient, name, shopName) {
+module.exports.send= (recipient, name, shopName)=> {
   let mailOptions = {
     from: `Foodengo<applications@foodengo.co.uk>`,
     sender: "applications@foodengo.co.uk",
@@ -12,7 +12,7 @@ module.exports.send = function (recipient, name, shopName) {
     <p><strong>Hi ${name},</strong></p>
     <p>Thank you for your application regarding listing ${shopName} on Foodengo, our team will review it and get back to you in 2 working days. </p>
     <p>Please kindly login with the link below to upload your proof of ownership such as international passport or national ID card.</p>
-    <a href="http://localhost:3000/login">Upload your proof ownership</a>
+    <a href="https://foodengo.co.uk/login">Upload your proof ownership</a>
     `,
     attachments: [
       {
@@ -35,6 +35,7 @@ module.exports.send = function (recipient, name, shopName) {
     },
   });
   transporter.sendMail(mailOptions, (error, info) => {
+      //console.log("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn", info)
     if (error) return null;
     else return info;
   });

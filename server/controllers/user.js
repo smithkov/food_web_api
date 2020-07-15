@@ -20,7 +20,7 @@ const {
 
 const query = new Query(User);
 const roleQuery = new Query(Role);
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const { savedSuccess, serverError } = Messages;
 
 module.exports = {
@@ -35,21 +35,19 @@ module.exports = {
 
       const emailExist = await query.findOne({ email: email });
       if (!emailExist) {
-        bcrypt.hash(password, 10, async(err, hash) => {
+        bcrypt.hash(password, 10, async (err, hash) => {
           if (err) {
             return res
               .status(SERVER_ERROR)
               .send({ message: serverError, error: true });
           } else {
-            const newUser = await query
-            .add({
+            const newUser = await query.add({
               email: email,
               password: hash,
               firstName: firstName,
               source: system,
               lastName: lastName,
               roleId: role.id,
-              
             });
             const user = await query.findPK(newUser.id);
             const token = jwt.sign(
@@ -59,8 +57,7 @@ module.exports = {
                 firstName: user.firstName,
                 role: user.Role.name,
                 photo: user.photo,
-                shopId: user.shops.length>0?user.shops[0].id:null
-    
+                shopId: user.shops.length > 0 ? user.shops[0].id : null,
               },
               secret,
               {
@@ -104,7 +101,6 @@ module.exports = {
           .send({ error: true, message: failedLoginMessage });
       }
       if (result) {
-
         const token = jwt.sign(
           {
             email: user.email,
@@ -112,8 +108,7 @@ module.exports = {
             firstName: user.firstName,
             role: user.Role.name,
             photo: user.photo,
-            shopId: user.shops.length>0?user.shops[0].id:null
-
+            shopId: user.shops.length > 0 ? user.shops[0].id : null,
           },
           secret,
           {
@@ -274,7 +269,20 @@ module.exports = {
       .then((user) => res.status(OK).send({ error: false, data: id }))
       .catch((error) => res.status(SERVER_ERROR).send(error));
   },
-
+  findEmail(req, res) {
+    const email = req.body.email;
+    return query
+      .findOne({ email })
+      .then((user) => {
+        
+        res
+          .status(OK)
+          .send({ hasEmail: user?true:false, message: `${email} has already been taken.` });
+      })
+      .catch((error) =>
+        res.status(OK).send({ error: true, message: Messages.serverError })
+      );
+  },
   isLogin(req, res) {
     res.status(OK).send({ error: false, data: req.userData });
   },

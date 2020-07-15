@@ -51,6 +51,6 @@ module.exports = {
     return query
       .findAll()
       .then((category) => res.status(OK).send({ error: false, data: category }))
-      .catch((error) => res.status(SERVER_ERROR).send(error));
+      
   },
 };

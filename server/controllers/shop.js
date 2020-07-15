@@ -1,5 +1,5 @@
 const Shop = require("../models").VirtualShop;
-const bcrypt = require("bcrypt");
+const bcrypt = require("bcryptjs");
 const User = require("../models").User;
 const Banner = require("../models").ShopBanner;
 const model = require("../models");
@@ -150,7 +150,7 @@ module.exports = {
     try {
       const role = await roleQuery.findOne({ name: "Seller" });
       const currentDate = new Date();
-      const date24Hrs = currentDate.setDate(currentDate.getDate() +1)
+      const date24Hrs = currentDate.setDate(currentDate.getDate() + 1);
       const emailExist = await userQuery.findOne({ email });
       if (!emailExist) {
         bcrypt.hash(password, 10, async (err, hash) => {
@@ -165,7 +165,7 @@ module.exports = {
                 password: hash,
                 firstName,
                 lastName,
-                roleId:role.id,
+                roleId: role.id,
                 expiry: date24Hrs,
               },
               t
@@ -182,19 +182,23 @@ module.exports = {
               },
               t
             );
+            const mail = Mail.send(user.email, user.firstName, createShop.shopName);
+            
             await t.commit();
-            Mail.send(email,firstName, shopName);
+            
             return res.status(OK).send({
-              error: false, id:user.id
+              error: false,
+              id: user.id,
             });
           }
         });
       } else {
         return res
-          .status(VALIDATION_ERROR)
+          .status(OK)
           .send({ message: "Email already exist!", error: true });
       }
     } catch (err) {
+      console.log(err);
       await t.rollback();
       res.status(SERVER_ERROR).send({ message: serverError, error: true });
     }
