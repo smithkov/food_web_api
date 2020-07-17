@@ -15,10 +15,11 @@ module.exports = {
       //   type: Sequelize.STRING,
       //   allowNull: true,
       // }),
-      queryInterface.addColumn('Users', 'expiry', {
-        type: Sequelize.DATE,
+      queryInterface.addColumn('OpeningDays', 'checked', {
+        type: Sequelize.BOOLEAN,
         allowNull: true
       }),
+      
       // queryInterface.addColumn("Transactions", "deliveryPrice", {
       //   type: Sequelize.DECIMAL,
       //   allowNull: true,

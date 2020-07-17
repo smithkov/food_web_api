@@ -1,4 +1,5 @@
 const Category = require("../models").Category;
+const model = require("../models");
 const VirtualShop = require("../models").VirtualShop;
 const Query = new require("../queries/crud");
 const validate = require("../validations/validation");

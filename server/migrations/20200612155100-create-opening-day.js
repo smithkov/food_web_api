@@ -21,14 +21,7 @@ module.exports = {
           as: "shopId",
         },
       },
-      dayId: {
-        type: Sequelize.UUID,
-        references: {
-          model: "Days",
-          key: "id",
-          as: "dayId",
-        },
-      },
+    
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

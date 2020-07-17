@@ -36,7 +36,6 @@ const refPath = "./server/routes/";
 require(`${refPath}category`)(app);
 require(`${refPath}subCategory`)(app);
 require(`${refPath}city`)(app);
-require(`${refPath}day`)(app);
 require(`${refPath}unit`)(app);
 require(`${refPath}status`)(app);
 require(`${refPath}sponsorType`)(app);
@@ -53,6 +52,7 @@ require(`${refPath}productRatingResponse`)(app);
 require(`${refPath}order`)(app);
 require(`${refPath}transaction`)(app);
 require(`${refPath}soldProduct`)(app);
+require(`${refPath}openingDay`)(app);
 app.use((err, req, res, next) => res.json(err));
 
 app.set("port", process.env.PORT || 8000);
