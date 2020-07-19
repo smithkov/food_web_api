@@ -1,4 +1,8 @@
 const ProductRating = require("../models").ProductRating;
+const Shop = require("../models").VirtualShop;
+const User = require("../models").User;
+const RS = require("../models").ProductRatingResponse;
+const model = require("../models");
 const Query = new require("../queries/crud");
 const validate = require("../validations/validation");
 const {
@@ -12,9 +16,8 @@ const query = new Query(ProductRating);
 
 module.exports = {
   create(req, res) {
-    const { title, rating, content,userId, shopId, productId } = req.body;
-    
-    
+    const { title, rating, content, userId, shopId, productId } = req.body;
+
     return query
       .add({ title, rating, userId, shopId, content, productId })
       .then((rating) =>
@@ -44,15 +47,55 @@ module.exports = {
       );
   },
 
-  findByProduct(req, res) {
+  findByProduct: async (req, res) => {
     const productId = req.body.productId;
-    
-    return query
-      .findAllWithParam({productId})
-      .then((rating) => res.status(OK).send({ error: false, data: rating }))
-      .catch((error) =>{
-        res.status(SERVER_ERROR).send({ error: true, message: serverError })}
-      );
+
+    const rating = await ProductRating.findAll({
+      where: { productId },
+      include: [
+        {
+          model: RS,
+          as: "ratingResponses",
+          include: [
+            { model: User, as: "User" },
+            { model: Shop, as: "VirtualShop" },
+          ],
+        },
+        { model: User, as: "User" },
+        { model: Shop, as: "VirtualShop" },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+    return res.status(OK).send({ error: false, data: rating });
+    // .catch((error) => {
+    //   res.status(SERVER_ERROR).send({ error: true, message: serverError });
+    // });
+  },
+
+  findByShop: async (req, res) => {
+    const shopId = req.body.shopId;
+
+    const rating = await ProductRating.findAll({
+      where: { shopId },
+      include: [
+        {
+          model: RS,
+          as: "ratingResponses",
+          include: [
+            { model: User, as: "User" },
+            { model: Shop, as: "VirtualShop" },
+          ],
+        },
+        { model: User, as: "User" },
+        { model: Shop, as: "VirtualShop" },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+
+    return res.status(OK).send({ error: false, data: rating });
+    // .catch((error) => {
+    //   res.status(SERVER_ERROR).send({ error: true, message: serverError });
+    // });
   },
 
   update(req, res) {

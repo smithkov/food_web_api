@@ -5,7 +5,9 @@ module.exports = (sequelize, DataTypes) => {
     {
       rating: DataTypes.STRING,
       title: DataTypes.STRING,
-      content: DataTypes.STRING
+      content: DataTypes.STRING,
+      createdAt: DataTypes.DATE,
+      updatedAt: DataTypes.DATE,
     },
     {}
   );

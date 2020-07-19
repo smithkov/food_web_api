@@ -75,22 +75,24 @@ module.exports = {
       .then((product) => res.status(OK).send({ error: false, data: product }))
       .catch((error) => res.status(SERVER_ERROR).send(error));
   },
-  findByUser(req, res) {
+  findByUser: async (req, res) => {
     const userId = req.body.userId;
-    const shop = shopQuery.findOne({ userId: userId });
+    
+    const shop = await shopQuery.findOne({ userId: userId });
+    
     if (!shop)
       return res
         .status(VALIDATION_ERROR)
         .send({ message: "No product associated with this shop", error: true });
 
-    return query
-      .findAllWithParam({ userId: userId })
-      .then((product) => res.status(OK).send({ error: false, data: product }))
-      .catch((error) => res.status(SERVER_ERROR).send(error));
+    const product = await query.findAllWithParam({ userId: userId });
+    
+    return res.status(OK).send({ error: false, data: product });
+    //.catch((error) => res.status(SERVER_ERROR).send({error:true});
   },
   findByShop(req, res) {
     const shopId = req.params.id;
-
+    
     return query
       .findAllWithParam({ shopId: shopId })
       .then((product) => res.status(OK).send({ error: false, data: product }))
@@ -119,7 +121,7 @@ module.exports = {
       .catch((error) => res.status(SERVER_ERROR).send(error));
   },
 
-  update:async(req, res)=> {
+  update: async (req, res) => {
     const {
       name,
       price,
@@ -131,10 +133,10 @@ module.exports = {
       categoryId,
       unitId,
       userId,
-      photo
+      photo,
     } = req.body;
     const id = req.params.id;
-    const mealPhoto = req.file?req.file.filename:photo;
+    const mealPhoto = req.file ? req.file.filename : photo;
     return query
       .update(id, {
         name,
@@ -153,17 +155,17 @@ module.exports = {
       .then((product) => res.status(OK).send({ error: false, data: product }))
       .catch((error) => res.status(SERVER_ERROR).send(error));
   },
-  
-    frontPageMeal(req, res) {
-      return query
-        .findAllLimit(5)
-        .then((product) => res.status(OK).send({ error: false, data: product }));
-      //.catch((error) => res.status(SERVER_ERROR).send(error));
-      // return query
-      //   .findAll()
-      //   .then((product) => res.status(OK).send({ error: false, data: product }))
-      //   .catch((error) => res.status(SERVER_ERROR).send(error));
-    },
+
+  frontPageMeal(req, res) {
+    return query
+      .findAllLimit(5)
+      .then((product) => res.status(OK).send({ error: false, data: product }));
+    //.catch((error) => res.status(SERVER_ERROR).send(error));
+    // return query
+    //   .findAll()
+    //   .then((product) => res.status(OK).send({ error: false, data: product }))
+    //   .catch((error) => res.status(SERVER_ERROR).send(error));
+  },
   findAll(req, res) {
     return query
       .findAll()

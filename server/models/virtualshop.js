@@ -57,6 +57,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "shopId",
       as: "productRatings",
     });
+    // VirtualShop.hasMany(models.ProductRatingResponse, {
+    //   foreignKey: "shopId",
+    //   as: "ratingResponses",
+    // });
     VirtualShop.hasMany(models.Order, {
       foreignKey: "shopId",
       as: "carts",

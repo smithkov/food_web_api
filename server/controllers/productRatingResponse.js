@@ -11,17 +11,22 @@ const { serverError, savedSuccess, updateSuccess } = Messages;
 const query = new Query(ProductRatingResponse);
 
 module.exports = {
-  create(req, res) {
-    const { content, ratingId, userId } = req.body;
+  create: async (req, res) => {
+    const { content, ratingId, userId, shopId } = req.body;
+    
+    const response = await query.add({
+      content,
+      ratingId,
+      userId,
+      shopId,
+    });
 
-    return query
-      .add({ content, ratingId, userId })
-      .then((ratingResponse) =>
-        res.status(OK).send({ data: ratingResponse, message: savedSuccess })
-      )
-      .catch((error) =>
-        res.status(SERVER_ERROR).send({ error: true, message: serverError })
-      );
+    const ratingResponse = await query.findPK(response.id);
+    return res.status(OK).send({ data: ratingResponse, message: savedSuccess });
+
+    // .catch((error) =>
+    //   res.status(SERVER_ERROR).send({ error: true, message: serverError })
+    // );
   },
   delete(req, res) {
     const id = req.params.id;

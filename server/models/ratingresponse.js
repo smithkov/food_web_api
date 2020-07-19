@@ -11,6 +11,9 @@ module.exports = (sequelize, DataTypes) => {
     RatingResponse.belongsTo(models.User, {
       foreignKey: 'userId'
     });
+    RatingResponse.belongsTo(models.VirtualShop, {
+      foreignKey: 'shopId'
+    });
   };
   return RatingResponse;
 };

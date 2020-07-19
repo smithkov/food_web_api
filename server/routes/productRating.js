@@ -5,6 +5,8 @@ module.exports = (app) => {
 
   app.post(rootUrl('productRating'), controller.create);
 
+  app.post(rootUrl('productRating/shop'), controller.findByShop);
+
   app.get(rootUrl('productRatings'), controller.findAll);
 
   app.get(rootUrl('productRating/:id'), controller.findPk);

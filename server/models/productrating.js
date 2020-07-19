@@ -1,11 +1,17 @@
-'use strict';
+"use strict";
 module.exports = (sequelize, DataTypes) => {
-  const ProductRating = sequelize.define('ProductRating', {
-    rating: DataTypes.STRING,
-    title: DataTypes.STRING,
-    content: DataTypes.STRING
-  }, {});
-  ProductRating.associate = function(models) {
+  const ProductRating = sequelize.define(
+    "ProductRating",
+    {
+      rating: DataTypes.STRING,
+      title: DataTypes.STRING,
+      content: DataTypes.STRING,
+      createdAt: DataTypes.DATE,
+      updatedAt: DataTypes.DATE,
+    },
+    {}
+  );
+  ProductRating.associate = function (models) {
     ProductRating.belongsTo(models.User, {
       foreignKey: "userId",
     });

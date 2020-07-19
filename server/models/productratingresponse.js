@@ -10,6 +10,9 @@ module.exports = (sequelize, DataTypes) => {
     ProductRatingResponse.belongsTo(models.User, {
       foreignKey: 'userId'
     });
+    ProductRatingResponse.belongsTo(models.VirtualShop, {
+      foreignKey: 'shopId'
+    });
   };
   return ProductRatingResponse;
 };

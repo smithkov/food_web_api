@@ -1,6 +1,9 @@
 const Rating = require("../models").Rating;
 const Query = new require("../queries/crud");
 const validate = require("../validations/validation");
+const RS = require("../models").RatingResponse;
+const User = require("../models").User;
+const Shop = require("../models").VirtualShop;
 const {
   SERVER_ERROR,
   OK,
@@ -12,7 +15,7 @@ const query = new Query(Rating);
 
 module.exports = {
   create(req, res) {
-    const { title, rating, content,userId, shopId } = req.body;
+    const { title, rating, content, userId, shopId } = req.body;
 
     return query
       .add({ title, rating, userId, shopId, content })
@@ -43,15 +46,28 @@ module.exports = {
       );
   },
 
-  findByShop(req, res) {
+  findByShop: async (req, res) => {
     const shopId = req.body.shopId;
-    
-    return query
-      .findAllWithParam({shopId})
-      .then((rating) => res.status(OK).send({ error: false, data: rating }))
-      .catch((error) =>{
-        res.status(SERVER_ERROR).send({ error: true, message: serverError })}
-      );
+    const rating = await Rating.findAll({
+      where: { shopId },
+      include: [
+        {
+          model: RS,
+          as: "ratingResponses",
+          include: [
+            { model: User, as: "User" },
+            { model: Shop, as: "VirtualShop" },
+          ],
+        },
+        { model: User, as: "User" },
+        { model: Shop, as: "VirtualShop" },
+      ],
+      order: [["createdAt", "DESC"]],
+    });
+    return res.status(OK).send({ error: false, data: rating });
+    // .catch((error) =>{
+    //   res.status(SERVER_ERROR).send({ error: true, message: serverError })}
+    // );
   },
 
   update(req, res) {
@@ -72,9 +88,6 @@ module.exports = {
   findAll(req, res) {
     return query
       .findAll()
-      .then((rating) => res.status(OK).send({ error: false, data: rating }))
-      .catch((error) =>
-        res.status(SERVER_ERROR).send({ error: true, message: serverError })
-      );
+      .then((rating) => res.status(OK).send({ error: false, data: rating }));
   },
 };
