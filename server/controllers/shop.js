@@ -182,10 +182,15 @@ module.exports = {
               },
               t
             );
-            const mail = Mail.send(user.email, user.firstName, createShop.shopName);
-            
+           
+            const option = Mail.options(
+              user.email,
+              user.firstName,
+              createShop.shopName
+            );
+            Mail.send(option);
             await t.commit();
-            
+
             return res.status(OK).send({
               error: false,
               id: user.id,

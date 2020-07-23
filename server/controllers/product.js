@@ -1,8 +1,12 @@
 const Product = require("../models").Product;
 const Shop = require("../models").VirtualShop;
+const OpeningDay = require("../models").OpeningDay;
 const ProductImage = require("../models").ProductImage;
+const ProductRating = require("../models").ProductRating;
 const Query = new require("../queries/crud");
 const validate = require("../validations/validation");
+const Mail = require("../utility/mail");
+const Op = require("sequelize").Op;
 const {
   SERVER_ERROR,
   OK,
@@ -68,42 +72,75 @@ module.exports = {
           .send({ message: Messages.serverError, error: true })
       );
   },
-  findByCategory(req, res) {
+  findByCategory: async (req, res) => {
     const id = req.params.id;
-    return query
-      .findAllWithParam({ categoryId: id })
-      .then((product) => res.status(OK).send({ error: false, data: product }))
-      .catch((error) => res.status(SERVER_ERROR).send(error));
+    try {
+      const product = await Product.findAll({
+        where: { categoryId: id },
+        include: [
+          {
+            model: ProductRating,
+            as: "productRatings",
+          },
+          {
+            model: Shop,
+            as: "VirtualShop",
+            include: [{ model: OpeningDay, as: "openingTimes" }],
+          },
+        ],
+        order: [["createdAt", "DESC"]],
+      });
+
+      return res.status(OK).send({ error: false, data: product });
+    } catch (err) {
+      return res.status(SERVER_ERROR).send({ error: true });
+    }
   },
   findByUser: async (req, res) => {
     const userId = req.body.userId;
-    
+
     const shop = await shopQuery.findOne({ userId: userId });
-    
+
     if (!shop)
       return res
         .status(VALIDATION_ERROR)
         .send({ message: "No product associated with this shop", error: true });
 
     const product = await query.findAllWithParam({ userId: userId });
-    
+
     return res.status(OK).send({ error: false, data: product });
     //.catch((error) => res.status(SERVER_ERROR).send({error:true});
   },
   findByShop(req, res) {
     const shopId = req.params.id;
-    
+
     return query
       .findAllWithParam({ shopId: shopId })
       .then((product) => res.status(OK).send({ error: false, data: product }))
       .catch((error) => res.status(SERVER_ERROR).send(error));
   },
-  findByOrigin(req, res) {
+  findByOrigin: async (req, res) => {
     const id = req.params.id;
-    return query
-      .findAllWithParam({ originId: id })
-      .then((product) => res.status(OK).send({ error: false, data: product }))
-      .catch((error) => res.status(SERVER_ERROR).send(error));
+    try {
+      const product = await Product.findAll({
+        where: { originId: id },
+        include: [
+          {
+            model: ProductRating,
+            as: "productRatings",
+          },
+          {
+            model: Shop,
+            as: "VirtualShop",
+            include: [{ model: OpeningDay, as: "openingTimes" }],
+          },
+        ],
+        order: [["createdAt", "DESC"]],
+      });
+      return res.status(OK).send({ error: false, data: product });
+    } catch (err) {
+      return res.status(SERVER_ERROR).send({ error: true });
+    }
   },
   delete(req, res) {
     const id = req.params.id;
@@ -160,16 +197,55 @@ module.exports = {
     return query
       .findAllLimit(5)
       .then((product) => res.status(OK).send({ error: false, data: product }));
-    //.catch((error) => res.status(SERVER_ERROR).send(error));
-    // return query
-    //   .findAll()
-    //   .then((product) => res.status(OK).send({ error: false, data: product }))
-    //   .catch((error) => res.status(SERVER_ERROR).send(error));
   },
-  findAll(req, res) {
-    return query
-      .findAll()
-      .then((product) => res.status(OK).send({ error: false, data: product }));
+  findAll: async (req, res) => {
+    // const option = Mail.options(
+    //   "smithdegreat@hotmail.com",
+    //   "Nnamdi",
+    //   "Mama Put"
+    // );
+    // Mail.send(option)
+   
+    const search = req.body.search;
+    const hasVals = search != "";
+
+    const product = hasVals
+      ? await Product.findAll({
+          where: {
+            [Op.or]: [
+              { name: { [Op.like]: `%${search}%` } },
+              { desc: { [Op.like]: `%${search}%` } },
+            ],
+          },
+          include: [
+            {
+              model: ProductRating,
+              as: "productRatings",
+            },
+            {
+              model: Shop,
+              as: "VirtualShop",
+              include: [{ model: OpeningDay, as: "openingTimes" }],
+            },
+          ],
+          order: [["createdAt", "DESC"]],
+        })
+      : await Product.findAll({
+          include: [
+            {
+              model: ProductRating,
+              as: "productRatings",
+            },
+            {
+              model: Shop,
+              as: "VirtualShop",
+              include: [{ model: OpeningDay, as: "openingTimes" }],
+            },
+          ],
+          order: [["createdAt", "DESC"]],
+        });
+
+    return res.status(OK).send({ error: false, data: product });
     //.catch((error) => res.status(SERVER_ERROR).send(error));
     // return query
     //   .findAll()

@@ -15,8 +15,12 @@ module.exports = {
       //   type: Sequelize.STRING,
       //   allowNull: true,
       // }),
-      // queryInterface.addColumn('OpeningDays', 'checked', {
-      //   type: Sequelize.BOOLEAN,
+      queryInterface.addColumn('OpeningDays', 'dayNum', {
+        type: Sequelize.INTEGER,
+        allowNull: true
+      }),
+      // queryInterface.addColumn('OpeningDays', 'cTime', {
+      //   type: Sequelize.TIME,
       //   allowNull: true
       // }),
       
@@ -32,14 +36,14 @@ module.exports = {
       //   type: Sequelize.DECIMAL,
       //   allowNull: true,
       // }),
-      queryInterface.addColumn("RatingResponses", "shopId", {
-        type: Sequelize.UUID,
-        references: {
-          model: "VirtualShops",
-          key: "id",
-          as: "shopId",
-        },
-      }),
+      // queryInterface.addColumn("RatingResponses", "shopId", {
+      //   type: Sequelize.UUID,
+      //   references: {
+      //     model: "VirtualShops",
+      //     key: "id",
+      //     as: "shopId",
+      //   },
+      // }),
       // queryInterface.addColumn("Socials", "twitter", {
       //   type: Sequelize.STRING,
       //   allowNull: true,

@@ -1,9 +1,8 @@
 const nodemailer = require("nodemailer");
-
-module.exports.send= (recipient, name, shopName)=> {
-  let mailOptions = {
+const options = (recipient, name, shopName)=>{
+  return {
     from: `Foodengo<applications@foodengo.co.uk>`,
-    sender: "applications@foodengo.co.uk",
+    sender: "info@foodengo.co.uk",
     to: recipient,
     subject: "Application Update",
     html: `<img style='height:50px, width:200px' src='cid:foodengo'/>
@@ -22,21 +21,29 @@ module.exports.send= (recipient, name, shopName)=> {
       },
     ],
   };
-
-  let transporter = nodemailer.createTransport({
+}
+const send= function(option){
+  
+  const transporter = nodemailer.createTransport({
     host: `mail.foodengo.co.uk`,
     port: 2525,
     tls: {
       rejectUnauthorized: false,
     },
     auth: {
-      user: `applications@foodengo.co.uk`,
+      user: `info@foodengo.co.uk`,
       pass: `2000years@BC`,
     },
   });
-  transporter.sendMail(mailOptions, (error, info) => {
-      //console.log("nnnnnnnnnnnnnnnnnnnnnnnnnnnnnnnn", info)
+  const send = transporter.sendMail(option, (error, info) => {
     if (error) return null;
     else return info;
   });
 };
+
+module.exports = {
+options: options,
+send: send
+
+}
+

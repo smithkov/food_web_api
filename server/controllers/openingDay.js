@@ -2,6 +2,7 @@ const OpeningDay = require("../models").OpeningDay;
 const Query = new require("../queries/crud");
 const model = require("../models");
 const validate = require("../validations/validation");
+const moment = require('moment');
 const {
   SERVER_ERROR,
   OK,
@@ -43,10 +44,13 @@ module.exports = {
       selectedSatMin,
       selectedSatMax,
     } = req.body;
-    try {
-      const t = await model.sequelize.transaction();
+    const t = await model.sequelize.transaction();
+    
+    //try {
+      
       const findByShop = await query.findAllWithParam({ shopId });
       const findByShopLength = findByShop.length;
+     
       //console.log("checked-------------", monChecked, satChecked);
 
       if (findByShopLength == 0) {
@@ -54,7 +58,10 @@ module.exports = {
           {
             opening: selectedSunMin,
             closing: selectedSunMax,
+            oTime:moment(selectedSunMin).format('LT'),
+            cTime:moment(selectedSunMax).format('LT'),
             shopId,
+            dayNum: 7,
             day: "Sunday",
             checked: sunChecked,
           },
@@ -64,8 +71,11 @@ module.exports = {
           {
             opening: selectedMonMin,
             closing: selectedMonMax,
+            oTime:moment(selectedMonMin).format('LT'),
+            cTime:moment(selectedMonMax).format('LT'),
             shopId,
             day: "Monday",
+            dayNum: 1,
             checked: monChecked,
           },
           t
@@ -74,8 +84,11 @@ module.exports = {
           {
             opening: selectedTueMin,
             closing: selectedTueMax,
+            oTime:moment(selectedTueMin).format('LT'),
+            cTime:moment(selectedTueMax).format('LT'),
             shopId,
             day: "Tuesday",
+            dayNum: 2,
             checked: tueChecked,
           },
           t
@@ -84,8 +97,11 @@ module.exports = {
           {
             opening: selectedWedMin,
             closing: selectedWedMax,
+            oTime:moment(selectedWedMin).format('LT'),
+            cTime:moment(selectedWedMax).format('LT'),
             shopId,
             day: "Wednesday",
+            dayNum: 3,
             checked: wedChecked,
           },
           t
@@ -94,8 +110,11 @@ module.exports = {
           {
             opening: selectedThurMin,
             closing: selectedThurMax,
+            oTime:moment(selectedThurMin).format('LT'),
+            cTime:moment(selectedThurMax).format('LT'),
             shopId,
             day: "Thursday",
+            dayNum: 4,
             checked: thurChecked,
           },
           t
@@ -104,8 +123,11 @@ module.exports = {
           {
             opening: selectedFriMin,
             closing: selectedFriMax,
+            oTime:moment(selectedFriMin).format('LT'),
+            cTime:moment(selectedFriMax).format('LT'),
             shopId,
             day: "Friday",
+            dayNum: 5,
             checked: friChecked,
           },
           t
@@ -114,8 +136,11 @@ module.exports = {
           {
             opening: selectedSatMin,
             closing: selectedSatMax,
+            oTime:moment(selectedSatMin).format('LT'),
+            cTime:moment(selectedSatMax).format('LT'),
             shopId,
             day: "Saturday",
+            dayNum: 6,
             checked: satChecked,
           },
           t
@@ -128,6 +153,9 @@ module.exports = {
           {
             opening: selectedSunMin,
             closing: selectedSunMax,
+            oTime:moment(selectedSunMin).format('LT'),
+            cTime:moment(selectedSunMin).format('LT'),
+            dayNum: 7,
             checked: sunChecked,
           },
           t
@@ -138,6 +166,9 @@ module.exports = {
           {
             opening: selectedMonMin,
             closing: selectedMonMax,
+            oTime:moment(selectedMonMin).format('LT'),
+            cTime:moment(selectedMonMax).format('LT'),
+            dayNum: 1,
             checked: monChecked,
           },
           t
@@ -148,6 +179,9 @@ module.exports = {
           {
             opening: selectedTueMin,
             closing: selectedTueMax,
+            oTime:moment(selectedTueMin).format('LT'),
+            cTime:moment(selectedTueMax).format('LT'),
+            dayNum: 2,
             checked: tueChecked,
           },
           t
@@ -158,6 +192,9 @@ module.exports = {
           {
             opening: selectedWedMin,
             closing: selectedWedMax,
+            oTime:moment(selectedWedMin).format('LT'),
+            cTime:moment(selectedWedMax).format('LT'),
+            dayNum: 3,
             checked: wedChecked,
           },
           t
@@ -168,6 +205,9 @@ module.exports = {
           {
             opening: selectedThurMin,
             closing: selectedThurMax,
+            oTime:moment(selectedThurMin).format('LT'),
+            cTime:moment(selectedThurMax).format('LT'),
+            dayNum: 4,
             checked: thurChecked,
           },
           t
@@ -178,6 +218,9 @@ module.exports = {
           {
             opening: selectedFriMin,
             closing: selectedFriMax,
+            oTime:moment(selectedFriMin).format('LT'),
+            cTime:moment(selectedFriMax).format('LT'),
+            dayNum: 5,
             checked: friChecked,
           },
           t
@@ -188,6 +231,9 @@ module.exports = {
           {
             opening: selectedSatMin,
             closing: selectedSatMax,
+            oTime:moment(selectedSatMin).format('LT'),
+            cTime:moment(selectedSatMax).format('LT'),
+            dayNum: 6,
             checked: satChecked,
           },
           t
@@ -195,10 +241,10 @@ module.exports = {
         await t.commit();
         res.status(OK).send({ error: false, message: Messages.savedSuccess });
       }
-    } catch (err) {
-      await t.rollback();
-      res.status(OK).send({ error: true, message: Messages.serverError });
-    }
+    // } catch (err) {
+    //   await t.rollback();
+    //   res.status(OK).send({ error: true, message: Messages.serverError });
+    // }
   },
 
   findAllByShop(req, res) {
