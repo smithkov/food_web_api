@@ -38,7 +38,6 @@ module.exports = {
       shopUrl,
     } = req.body;
 
-    const shopUri = shopUrl !== "null" ? rmSpace(shopUrl) : rmSpace(shopName);
     const t = await model.sequelize.transaction();
 
     try {
@@ -52,6 +51,8 @@ module.exports = {
       const banner = bannerObject ? bannerObject[0].filename : null;
 
       if (hasShop) {
+        const shopUri = shopUrl != "" ? rmSpace(shopUrl) : shopName;
+
         const updateShop = await query.updateTransact(
           hasShop.id,
           {
@@ -92,41 +93,6 @@ module.exports = {
           message: "Saved successfully.",
         });
       }
-
-      const role = await roleQuery.findOne({ name: "Seller" });
-      const newUser = {
-        roleId: role.id,
-      };
-      const userUpdate = await userQuery.updateTransact(user.id, newUser, t);
-
-      const add = await query.addTransact(
-        {
-          shopName: shopName,
-          logo: logo,
-          userId: user.id,
-          firstAddress,
-          secondAddress,
-          postCode,
-          cityId,
-          shopUrl: shopUri,
-        },
-        t
-      );
-      if (banner) {
-        const createBanner = await bannerQuery.addTransact(
-          {
-            shopId: add.id,
-            bannerPath: banner,
-          },
-          t
-        );
-      }
-      await t.commit();
-      res.status(OK).send({
-        data: add,
-        error: false,
-        message: "Shop creation was successful, you can now start selling.",
-      });
     } catch (err) {
       await t.rollback();
 
@@ -148,6 +114,7 @@ module.exports = {
     } = req.body;
 
     try {
+      const rand = Math.floor(111111 + Math.random() * 999999);
       const role = await roleQuery.findOne({ name: "Seller" });
       const currentDate = new Date();
       const date24Hrs = currentDate.setDate(currentDate.getDate() + 1);
@@ -179,16 +146,20 @@ module.exports = {
                 cityId,
                 phone,
                 shopUrl: shopName,
+                verificationCode: rand,
               },
               t
             );
-           
+
             const option = Mail.options(
               user.email,
               user.firstName,
               createShop.shopName
             );
             Mail.send(option);
+
+            const mailOption = Mail.activateOption(user.email, rand);
+            Mail.send(mailOption);
             await t.commit();
 
             return res.status(OK).send({
@@ -208,6 +179,25 @@ module.exports = {
       res.status(SERVER_ERROR).send({ message: serverError, error: true });
     }
   },
+  activateAccount: async (req, res) => {
+    const verificationCode = req.params.code;
+
+    const shop = await query.findOne({ verificationCode });
+
+    if (shop) {
+      await query.update(shop.id, { isActive: true, verificationCode: "" });
+      return res.status(OK).send({
+        message: "Your store account was activated successfully",
+        error: false,
+      });
+    } else {
+      return res.status(OK).send({
+        message: "The activation link has expired or is invalid.",
+        error: true,
+      });
+    }
+  },
+
   delete(req, res) {
     const id = req.params.id;
     return query
@@ -217,7 +207,17 @@ module.exports = {
         res.status(SERVER_ERROR).send({ message: serverError, error: true })
       );
   },
+  contactUs(req, res) {
+    try {
+      const { message, email, name, reason } = req.body;
+      const mailOption = Mail.contactOptions(email, reason, message,name);
 
+      Mail.send(mailOption);
+      return res.status(OK).send({ error: false });
+    } catch (err) {
+      return res.status(OK).send({ error: true });
+    }
+  },
   findByUser(req, res) {
     const userId = req.params.id;
     return query

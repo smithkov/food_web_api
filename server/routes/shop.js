@@ -23,9 +23,13 @@ module.exports = (app) => {
 
   app.post(rootUrl("shopByUrl"), controller.findShopByUrl);
 
+  app.post(rootUrl("contactUs"), controller.contactUs);
+
   app.get(rootUrl("shops/byUser/:id"), controller.findByUser);
 
   app.get(rootUrl("shop/:id"), controller.findPk);
+
+  app.get(rootUrl("shop/activateByLink/:code"), controller.activateAccount);
 
   app.patch(rootUrl("shop/:id"), controller.update);
 

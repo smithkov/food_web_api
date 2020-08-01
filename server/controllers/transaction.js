@@ -8,11 +8,15 @@ const { SERVER_ERROR, OK, VALIDATION_ERROR } = require("../errors/statusCode");
 const query = new Query(Transaction);
 const querySold = new Query(SoldProduct);
 const queryOrder = new Query(TempOrder);
+const stripe = require("stripe")(
+  "sk_test_51HArokCAtyjlhEIMvbHTpmlhyme7b4Y0AYDtsUjYUGwU5QcL9zHUsps51w64yOHgPQyVzY1kH7RadIW96Q55YzR700mekUAJto"
+);
+const { v4: uuidv4 } = require("uuid");
 
 module.exports = {
   create: async (req, res) => {
     let createTransaction;
-    const { tempId, shopId } = req.body;
+    const { tempId, shopId, paymentId, paymentEmail } = req.body;
     const findOrder = await queryOrder.findOne({ tempId, shopId });
     if (findOrder) {
       const {
@@ -21,7 +25,7 @@ module.exports = {
         subTotal,
         offerDiscount,
         orders,
-        message
+        message,
       } = findOrder;
       const t = await model.sequelize.transaction();
       try {
@@ -30,11 +34,13 @@ module.exports = {
             total,
             refNo: tempId,
             shopId,
-            userId:req.userData.id,
+            userId: req.userData.id,
             deliveryPrice,
             subTotal,
             offerDiscount,
-            message
+            paymentEmail,
+            paymentId,
+            message,
           },
           t
         );
@@ -67,6 +73,40 @@ module.exports = {
       });
     }
   },
+  createStripePayment(req, res) {
+    try {
+      const { product, token } = req.body;
+
+      const idempotencyKey = uuidv4();
+      return stripe.customers
+        .create({
+          email: token.email,
+          source: token.id,
+        })
+        .then((customer) => {
+          stripe.charges.create(
+            {
+              amount: product.amount * 100,
+              currency: "gbp",
+              customer: customer.id,
+              receipt_email: token.email,
+              description: product.desc,
+              receipt_number:"393939838383",
+            },
+            { idempotencyKey },
+            function (err, charge) {
+              console.log("Error----------------------"+err, "Charge----------------------"+JSON.stringify(charge))
+            }
+          );
+        })
+        .then((result) => res.status(200).json(result))
+        .catch((err) => {
+          console.log("inner catch error---------------------" + err);
+        });
+    } catch (err) {
+      console.log("try catch error---------------------" + err);
+    }
+  },
   delete(req, res) {
     const id = req.params.id;
     return query
@@ -88,7 +128,7 @@ module.exports = {
   findTransactionByUser(req, res) {
     const userId = req.body.userId;
     return query
-      .findAllWithParam({userId})
+      .findAllWithParam({ userId })
       .then((transaction) =>
         res.status(OK).send({ error: false, data: transaction })
       )
@@ -98,7 +138,7 @@ module.exports = {
   findTransactionByShop(req, res) {
     const shopId = req.body.shopId;
     return query
-      .findAllWithParam({shopId})
+      .findAllWithParam({ shopId })
       .then((transaction) =>
         res.status(OK).send({ error: false, data: transaction })
       )

@@ -12,4 +12,6 @@ module.exports = (app) => {
   app.post(rootUrl("shop/transaction"), auth, controller.findTransactionByShop);
 
   app.get(rootUrl("shop/transaction/:id"), auth, controller.findPk);
+
+  app.post(rootUrl("stripePay"), auth, controller.createStripePayment )
 };

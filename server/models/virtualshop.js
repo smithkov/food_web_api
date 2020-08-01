@@ -11,6 +11,7 @@ module.exports = (sequelize, DataTypes) => {
       secondAddress: DataTypes.STRING,
       postCode: DataTypes.STRING,
       isActive: DataTypes.BOOLEAN,
+      verificationCode: DataTypes.STRING,
       shopUrl: DataTypes.STRING,
       phone: DataTypes.STRING,
       notice: DataTypes.STRING,

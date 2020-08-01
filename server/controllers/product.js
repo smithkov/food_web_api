@@ -1,4 +1,5 @@
 const Product = require("../models").Product;
+const opening = require("../models").OpeningDay;
 const Shop = require("../models").VirtualShop;
 const OpeningDay = require("../models").OpeningDay;
 const ProductImage = require("../models").ProductImage;
@@ -7,6 +8,7 @@ const Query = new require("../queries/crud");
 const validate = require("../validations/validation");
 const Mail = require("../utility/mail");
 const Op = require("sequelize").Op;
+const moment = require("moment");
 const {
   SERVER_ERROR,
   OK,
@@ -16,6 +18,7 @@ const {
 const query = new Query(Product);
 const imageQuery = new Query(ProductImage);
 const shopQuery = new Query(Shop);
+const openQuery = new Query(OpeningDay);
 
 module.exports = {
   create: async (req, res) => {
@@ -111,13 +114,11 @@ module.exports = {
     return res.status(OK).send({ error: false, data: product });
     //.catch((error) => res.status(SERVER_ERROR).send({error:true});
   },
-  findByShop(req, res) {
+  findByShop: async (req, res) => {
     const shopId = req.params.id;
+    const product = await query.findAllWithParam({ shopId: shopId });
 
-    return query
-      .findAllWithParam({ shopId: shopId })
-      .then((product) => res.status(OK).send({ error: false, data: product }))
-      .catch((error) => res.status(SERVER_ERROR).send(error));
+    return res.status(OK).send({ error: false, data: product });
   },
   findByOrigin: async (req, res) => {
     const id = req.params.id;
@@ -199,16 +200,12 @@ module.exports = {
       .then((product) => res.status(OK).send({ error: false, data: product }));
   },
   findAll: async (req, res) => {
-    // const option = Mail.options(
-    //   "smithdegreat@hotmail.com",
-    //   "Nnamdi",
-    //   "Mama Put"
-    // );
-    // Mail.send(option)
-   
     const search = req.body.search;
     const hasVals = search != "";
+    var myDate = new Date();
 
+    var curTime = moment(myDate).format("HH:mm");
+    const getDay = myDate.getDay();
     const product = hasVals
       ? await Product.findAll({
           where: {
@@ -221,11 +218,27 @@ module.exports = {
             {
               model: ProductRating,
               as: "productRatings",
+              required: true,
             },
             {
               model: Shop,
               as: "VirtualShop",
-              include: [{ model: OpeningDay, as: "openingTimes" }],
+              required: true,
+              include: [
+                {
+                  model: OpeningDay,
+                  as: "openingTimes",
+                  where: {
+                    oTime: {
+                      [Op.between]: ["00:00", curTime],
+                    },
+                    cTime: {
+                      [Op.gt]: curTime,
+                    },
+                    dayNum: getDay,
+                  },
+                },
+              ],
             },
           ],
           order: [["createdAt", "DESC"]],
@@ -235,16 +248,32 @@ module.exports = {
             {
               model: ProductRating,
               as: "productRatings",
+              required: false,
             },
             {
               model: Shop,
               as: "VirtualShop",
-              include: [{ model: OpeningDay, as: "openingTimes" }],
+              required: true,
+              include: [
+                {
+                  model: OpeningDay,
+                  as: "openingTimes",
+                  where: {
+                    oTime: {
+                      [Op.between]: ["00:00", curTime],
+                    },
+                    cTime: {
+                      [Op.gt]: curTime,
+                    },
+                    dayNum: getDay,
+                  },
+                },
+              ],
             },
           ],
           order: [["createdAt", "DESC"]],
         });
-
+    
     return res.status(OK).send({ error: false, data: product });
     //.catch((error) => res.status(SERVER_ERROR).send(error));
     // return query

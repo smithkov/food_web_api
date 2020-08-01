@@ -15,14 +15,19 @@ module.exports = {
       //   type: Sequelize.STRING,
       //   allowNull: true,
       // }),
-      queryInterface.addColumn('OpeningDays', 'dayNum', {
-        type: Sequelize.INTEGER,
+      // queryInterface.addColumn('VirtualShops', 'verificationCode', {
+      //   type: Sequelize.STRING,
+      //   allowNull: true,
+      // }),
+      queryInterface.addColumn('Transactions', 'paymentId', {
+        type: Sequelize.STRING,
         allowNull: true
       }),
-      // queryInterface.addColumn('OpeningDays', 'cTime', {
-      //   type: Sequelize.TIME,
-      //   allowNull: true
-      // }),
+
+      queryInterface.addColumn('Transactions', 'paymentEmail', {
+        type: Sequelize.STRING,
+        allowNull: true
+      }),
       
       // queryInterface.addColumn("Transactions", "deliveryPrice", {
       //   type: Sequelize.DECIMAL,

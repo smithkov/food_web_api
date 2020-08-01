@@ -8,6 +8,8 @@ module.exports = (sequelize, DataTypes) => {
       subTotal: DataTypes.DECIMAL,
       offerDiscount: DataTypes.DECIMAL,
       refNo: DataTypes.STRING,
+      paymentId: DataTypes.STRING,
+      paymentEmail: DataTypes.STRING,
       message: DataTypes.STRING,
     },
     {}
