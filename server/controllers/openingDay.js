@@ -10,7 +10,7 @@ const {
   Messages,
 } = require("../errors/statusCode");
 const query = new Query(OpeningDay);
-
+const negNum = -1;
 module.exports = {
   create: async (req, res) => {
     const {
@@ -61,7 +61,7 @@ module.exports = {
           oTime: moment(selectedSunMin).format("HH:mm"),
           cTime: moment(selectedSunMax).format("HH:mm"),
           shopId,
-          dayNum: 7,
+          dayNum: 0,
           day: "Sunday",
           checked: sunChecked,
         },
@@ -154,8 +154,8 @@ module.exports = {
           opening: selectedSunMin,
           closing: selectedSunMax,
           oTime: moment(selectedSunMin).format("HH:mm"),
-          cTime: moment(selectedSunMin).format("HH:mm"),
-          dayNum: 7,
+          cTime: moment(selectedSunMax).format("HH:mm"),
+          dayNum: sunChecked ? 0 : negNum,
           checked: sunChecked,
         },
         t
@@ -168,7 +168,7 @@ module.exports = {
           closing: selectedMonMax,
           oTime: moment(selectedMonMin).format("HH:mm"),
           cTime: moment(selectedMonMax).format("HH:mm"),
-          dayNum: 1,
+          dayNum: monChecked ? 1 : negNum,
           checked: monChecked,
         },
         t
@@ -181,7 +181,7 @@ module.exports = {
           closing: selectedTueMax,
           oTime: moment(selectedTueMin).format("HH:mm"),
           cTime: moment(selectedTueMax).format("HH:mm"),
-          dayNum: 2,
+          dayNum: tueChecked ? 2 : negNum,
           checked: tueChecked,
         },
         t
@@ -194,7 +194,7 @@ module.exports = {
           closing: selectedWedMax,
           oTime: moment(selectedWedMin).format("HH:mm"),
           cTime: moment(selectedWedMax).format("HH:mm"),
-          dayNum: 3,
+          dayNum: wedChecked ? 3 : negNum,
           checked: wedChecked,
         },
         t
@@ -208,7 +208,7 @@ module.exports = {
           oTime: moment(selectedThurMin).format("HH:mm"),
           cTime: moment(selectedThurMax).format("HH:mm"),
 
-          dayNum: 4,
+          dayNum: thurChecked ? 4 : negNum,
           checked: thurChecked,
         },
         t
@@ -221,7 +221,7 @@ module.exports = {
           closing: selectedFriMax,
           oTime: moment(selectedFriMin).format("HH:mm"),
           cTime: moment(selectedFriMax).format("HH:mm"),
-          dayNum: 5,
+          dayNum: friChecked ? 5 : negNum,
           checked: friChecked,
         },
         t
@@ -234,7 +234,7 @@ module.exports = {
           closing: selectedSatMax,
           oTime: moment(selectedSatMin).format("HH:mm"),
           cTime: moment(selectedSatMax).format("HH:mm"),
-          dayNum: 6,
+          dayNum: satChecked ? 6 : negNum,
           checked: satChecked,
         },
         t

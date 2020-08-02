@@ -19,6 +19,8 @@ const query = new Query(Product);
 const imageQuery = new Query(ProductImage);
 const shopQuery = new Query(Shop);
 const openQuery = new Query(OpeningDay);
+const firstHour = "00:00";
+const lastHour = "23:00";
 
 module.exports = {
   create: async (req, res) => {
@@ -199,13 +201,14 @@ module.exports = {
       .findAllLimit(5)
       .then((product) => res.status(OK).send({ error: false, data: product }));
   },
-  findAll: async (req, res) => {
+  findAllOpen: async (req, res) => {
     const search = req.body.search;
     const hasVals = search != "";
     var myDate = new Date();
 
     var curTime = moment(myDate).format("HH:mm");
     const getDay = myDate.getDay();
+    //Begining of available products
     const product = hasVals
       ? await Product.findAll({
           where: {
@@ -230,12 +233,13 @@ module.exports = {
                   as: "openingTimes",
                   where: {
                     oTime: {
-                      [Op.between]: ["00:00", curTime],
+                      [Op.between]: [firstHour, curTime],
                     },
                     cTime: {
-                      [Op.gt]: curTime,
+                      [Op.lte]: lastHour,
                     },
                     dayNum: getDay,
+                    checked: true,
                   },
                 },
               ],
@@ -260,12 +264,13 @@ module.exports = {
                   as: "openingTimes",
                   where: {
                     oTime: {
-                      [Op.between]: ["00:00", curTime],
+                      [Op.between]: [firstHour, curTime],
                     },
                     cTime: {
-                      [Op.gt]: curTime,
+                      [Op.and]: [{ [Op.lte]: lastHour }, { [Op.gt]: curTime }],
                     },
                     dayNum: getDay,
+                    checked: true,
                   },
                 },
               ],
@@ -273,12 +278,119 @@ module.exports = {
           ],
           order: [["createdAt", "DESC"]],
         });
-    
-    return res.status(OK).send({ error: false, data: product });
+    //End of available products
+
+    //Begining of products not available
+    const notAvailableProducts = hasVals
+      ? await Product.findAll({
+          where: {
+            [Op.or]: [
+              { name: { [Op.like]: `%${search}%` } },
+              { desc: { [Op.like]: `%${search}%` } },
+            ],
+          },
+          include: [
+            {
+              model: ProductRating,
+              as: "productRatings",
+              required: true,
+            },
+            {
+              model: Shop,
+              as: "VirtualShop",
+              required: true,
+              include: [
+                {
+                  model: ProductRating,
+                  as: "productRatings",
+                  required: false,
+                },
+                {
+                  model: Shop,
+                  as: "VirtualShop",
+                  required: true,
+                  include: [
+                    {
+                      model: OpeningDay,
+                      as: "openingTimes",
+                      where: {
+                        [Op.or]: [
+                          {
+                            dayNum: {
+                              [Op.and]: [{ [Op.ne]: getDay }, { [Op.ne]: -1 }],
+                            },
+                            checked: true,
+                          },
+                          {
+                            oTime: {
+                              [Op.gt]: curTime,
+                            },
+                            cTime: {
+                              [Op.lte]: lastHour,
+                            },
+                            dayNum: getDay,
+                            checked: true,
+                          },
+                        ],
+                      },
+                    },
+                  ],
+                },
+              ],
+            },
+          ],
+          order: [["createdAt", "DESC"]],
+        })
+      : await Product.findAll({
+          include: [
+            {
+              model: ProductRating,
+              as: "productRatings",
+              required: false,
+            },
+            {
+              model: Shop,
+              as: "VirtualShop",
+              required: true,
+              include: [
+                {
+                  model: OpeningDay,
+                  as: "openingTimes",
+                  where: {
+                    [Op.or]: [
+                      {
+                        dayNum: {
+                          [Op.and]: [{ [Op.ne]: getDay }, { [Op.ne]: -1 }],
+                        },
+                        checked: true,
+                      },
+                      {
+                        oTime: {
+                          [Op.gt]: curTime,
+                        },
+                        cTime: {
+                          [Op.lte]: lastHour,
+                        },
+                        dayNum: getDay,
+                        checked: true,
+                      },
+                    ],
+                  },
+                },
+              ],
+            },
+          ],
+          order: [["createdAt", "DESC"]],
+        });
+
+    //End of available products
+
+    return res.status(OK).send({ error: false, open: product, close:notAvailableProducts });
     //.catch((error) => res.status(SERVER_ERROR).send(error));
     // return query
     //   .findAll()
     //   .then((product) => res.status(OK).send({ error: false, data: product }))
     //   .catch((error) => res.status(SERVER_ERROR).send(error));
   },
+
 };

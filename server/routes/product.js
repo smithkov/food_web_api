@@ -12,7 +12,7 @@ module.exports = (app) => {
 
   app.get(rootUrl("product/origin/:id"), controller.findByOrigin);
 
-  app.post(rootUrl("products"), controller.findAll);
+  app.post(rootUrl("products"), controller.findAllOpen);
 
   app.get(rootUrl("front-page-meals"), controller.frontPageMeal);
 

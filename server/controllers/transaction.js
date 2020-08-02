@@ -91,20 +91,22 @@ module.exports = {
               customer: customer.id,
               receipt_email: token.email,
               description: product.desc,
-              receipt_number:"393939838383",
             },
             { idempotencyKey },
             function (err, charge) {
-              console.log("Error----------------------"+err, "Charge----------------------"+JSON.stringify(charge))
+              if (err) {
+                return res.status(OK).send({ error: true });
+              } else {
+                return res.status(OK).send({ error: false });
+              }
             }
           );
         })
-        .then((result) => res.status(200).json(result))
         .catch((err) => {
-          console.log("inner catch error---------------------" + err);
+          return res.status(OK).send({ error: true });
         });
     } catch (err) {
-      console.log("try catch error---------------------" + err);
+      return res.status(OK).send({ error: true });
     }
   },
   delete(req, res) {
