@@ -3,16 +3,18 @@ const Query = new require("../queries/crud");
 const validate = require("../validations/validation");
 const { SERVER_ERROR, OK, VALIDATION_ERROR } = require("../errors/statusCode");
 const query = new Query(Origin);
+const Shop = require("../models").VirtualShop;
+const OpeningDay = require("../models").OpeningDay;
 
 module.exports = {
   create(req, res) {
     const name = req.body.name;
-   
+
     const { error, value } = validate.nameSchema({ name: name });
 
     if (!error) {
       return query
-        .add({ name: name})
+        .add({ name: name })
         .then((origin) => res.status(OK).send(origin))
         .catch((error) => res.status(SERVER_ERROR).send(error));
     } else {
@@ -46,7 +48,12 @@ module.exports = {
 
   findAll(req, res) {
     return query
-      .findAll()
+      .findAll({
+        model: Shop,
+        as: "VirtualShop",
+        required: true,
+        include: [{ model: OpeningDay, as: "openingTimes", required: true }],
+      })
       .then((origin) => res.status(OK).send({ error: false, data: origin }))
       .catch((error) => res.status(SERVER_ERROR).send(error));
   },

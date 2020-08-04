@@ -295,6 +295,7 @@ module.exports = {
       percentageDiscount,
       discountAmount,
       notice,
+      prepareTime,
     } = req.body;
 
     const id = req.params.id;
@@ -304,6 +305,7 @@ module.exports = {
         minOrder,
         maxTime,
         minTime,
+        prepareTime,
         percentageDiscount,
         discountAmount,
         notice,

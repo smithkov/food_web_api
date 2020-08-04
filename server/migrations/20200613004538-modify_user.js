@@ -19,13 +19,13 @@ module.exports = {
       //   type: Sequelize.STRING,
       //   allowNull: true,
       // }),
-      queryInterface.addColumn('Transactions', 'paymentId', {
-        type: Sequelize.STRING,
-        allowNull: true
-      }),
+      // queryInterface.addColumn('Transactions', 'paymentId', {
+      //   type: Sequelize.STRING,
+      //   allowNull: true
+      // }),
 
-      queryInterface.addColumn('Transactions', 'paymentEmail', {
-        type: Sequelize.STRING,
+      queryInterface.addColumn('VirtualShops', 'prepareTime', {
+        type: Sequelize.JSONB,
         allowNull: true
       }),
       

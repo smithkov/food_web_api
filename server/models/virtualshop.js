@@ -21,6 +21,7 @@ module.exports = (sequelize, DataTypes) => {
       minTime: DataTypes.STRING,
       percentageDiscount: DataTypes.STRING,
       discountAmount: DataTypes.STRING,
+      prepareTime: DataTypes.JSONB,
     },
     {}
   );

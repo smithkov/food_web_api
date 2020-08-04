@@ -2,6 +2,7 @@ const Product = require("../models").Product;
 const opening = require("../models").OpeningDay;
 const Shop = require("../models").VirtualShop;
 const OpeningDay = require("../models").OpeningDay;
+const Origin = require("../models").Origin;
 const ProductImage = require("../models").ProductImage;
 const ProductRating = require("../models").ProductRating;
 const Query = new require("../queries/crud");
@@ -21,9 +22,55 @@ const shopQuery = new Query(Shop);
 const openQuery = new Query(OpeningDay);
 const firstHour = "00:00";
 const lastHour = "23:00";
+const myDate = new Date();
+const curTime = moment(myDate).format("HH:mm");
+const getDay = myDate.getDay();
+const openArray = [
+  {
+    model: OpeningDay,
+    as: "openingTimes",
+    where: {
+      oTime: {
+        [Op.between]: [firstHour, curTime],
+      },
+      cTime: {
+        [Op.lte]: lastHour,
+      },
+      dayNum: getDay,
+      checked: true,
+    },
+  },
+];
+const closeArray = [
+  {
+    model: OpeningDay,
+    as: "openingTimes",
+    where: {
+      [Op.or]: [
+        {
+          dayNum: {
+            [Op.and]: [{ [Op.ne]: getDay }, { [Op.ne]: -1 }],
+          },
+          checked: true,
+        },
+        {
+          oTime: {
+            [Op.gt]: curTime,
+          },
+          cTime: {
+            [Op.lte]: lastHour,
+          },
+          dayNum: getDay,
+          checked: true,
+        },
+      ],
+    },
+  },
+];
 
 module.exports = {
   create: async (req, res) => {
+   
     const {
       name,
       price,
@@ -34,11 +81,13 @@ module.exports = {
       originId,
       shopId,
       categoryId,
+      ingredients,
       subCategoryId,
       unitId,
       userId,
     } = req.body;
 
+    
     const { error, value } = validate.nameSchema({ name: name });
 
     const shop = await shopQuery.findOne({ userId: userId });
@@ -61,6 +110,7 @@ module.exports = {
         categoryId,
         subCategoryId,
         originId,
+        ingredients: JSON.parse(ingredients),
         userId,
         photo: req.file.filename,
         unitId: unitId ? unitId : null,
@@ -71,32 +121,54 @@ module.exports = {
           message: `${product.name} was added successfully.`,
         });
       })
-      .catch((error) =>
-        res
-          .status(SERVER_ERROR)
-          .send({ message: Messages.serverError, error: true })
-      );
+      // .catch((error) =>
+      //   res
+      //     .status(SERVER_ERROR)
+      //     .send({ message: Messages.serverError, error: true })
+      // );
   },
   findByCategory: async (req, res) => {
     const id = req.params.id;
     try {
-      const product = await Product.findAll({
+      const openProduct = await Product.findAll({
         where: { categoryId: id },
         include: [
           {
             model: ProductRating,
             as: "productRatings",
+            required: false,
           },
           {
             model: Shop,
             as: "VirtualShop",
-            include: [{ model: OpeningDay, as: "openingTimes" }],
+            required: true,
+            include: openArray,
           },
         ],
         order: [["createdAt", "DESC"]],
       });
 
-      return res.status(OK).send({ error: false, data: product });
+      const closeProduct = await Product.findAll({
+        where: { categoryId: id },
+        include: [
+          {
+            model: ProductRating,
+            as: "productRatings",
+            required: false,
+          },
+          {
+            model: Shop,
+            as: "VirtualShop",
+            required: true,
+            include: closeArray,
+          },
+        ],
+        order: [["createdAt", "DESC"]],
+      });
+
+      return res
+        .status(OK)
+        .send({ error: false, open: openProduct, close: closeProduct });
     } catch (err) {
       return res.status(SERVER_ERROR).send({ error: true });
     }
@@ -125,22 +197,55 @@ module.exports = {
   findByOrigin: async (req, res) => {
     const id = req.params.id;
     try {
-      const product = await Product.findAll({
+      const openProduct = await Product.findAll({
         where: { originId: id },
         include: [
           {
             model: ProductRating,
             as: "productRatings",
+            required: false,
+          },
+          {
+            model: Origin,
+            as: "Origin",
+            required: true,
+            where: { id: id },
           },
           {
             model: Shop,
             as: "VirtualShop",
-            include: [{ model: OpeningDay, as: "openingTimes" }],
+            required: true,
+            include: openArray,
           },
         ],
         order: [["createdAt", "DESC"]],
       });
-      return res.status(OK).send({ error: false, data: product });
+
+      const closeProduct = await Product.findAll({
+        include: [
+          {
+            model: ProductRating,
+            as: "productRatings",
+            required: false,
+          },
+          {
+            model: Origin,
+            as: "Origin",
+            required: true,
+            where: { id: id },
+          },
+          {
+            model: Shop,
+            as: "VirtualShop",
+            required: true,
+            include: closeArray,
+          },
+        ],
+        order: [["createdAt", "DESC"]],
+      });
+      return res
+        .status(OK)
+        .send({ error: false, open: openProduct, close: closeProduct });
     } catch (err) {
       return res.status(SERVER_ERROR).send({ error: true });
     }
@@ -171,6 +276,7 @@ module.exports = {
       weight,
       originId,
       categoryId,
+      ingredients,
       unitId,
       userId,
       photo,
@@ -188,6 +294,7 @@ module.exports = {
         originId,
         categoryId,
         originId,
+        ingredients: JSON.parse(ingredients),
         userId,
         photo: mealPhoto,
         unitId: unitId ? unitId : null,
@@ -204,10 +311,7 @@ module.exports = {
   findAllOpen: async (req, res) => {
     const search = req.body.search;
     const hasVals = search != "";
-    var myDate = new Date();
 
-    var curTime = moment(myDate).format("HH:mm");
-    const getDay = myDate.getDay();
     //Begining of available products
     const product = hasVals
       ? await Product.findAll({
@@ -227,22 +331,7 @@ module.exports = {
               model: Shop,
               as: "VirtualShop",
               required: true,
-              include: [
-                {
-                  model: OpeningDay,
-                  as: "openingTimes",
-                  where: {
-                    oTime: {
-                      [Op.between]: [firstHour, curTime],
-                    },
-                    cTime: {
-                      [Op.lte]: lastHour,
-                    },
-                    dayNum: getDay,
-                    checked: true,
-                  },
-                },
-              ],
+              include: openArray,
             },
           ],
           order: [["createdAt", "DESC"]],
@@ -258,22 +347,7 @@ module.exports = {
               model: Shop,
               as: "VirtualShop",
               required: true,
-              include: [
-                {
-                  model: OpeningDay,
-                  as: "openingTimes",
-                  where: {
-                    oTime: {
-                      [Op.between]: [firstHour, curTime],
-                    },
-                    cTime: {
-                      [Op.and]: [{ [Op.lte]: lastHour }, { [Op.gt]: curTime }],
-                    },
-                    dayNum: getDay,
-                    checked: true,
-                  },
-                },
-              ],
+              include: openArray,
             },
           ],
           order: [["createdAt", "DESC"]],
@@ -309,32 +383,7 @@ module.exports = {
                   model: Shop,
                   as: "VirtualShop",
                   required: true,
-                  include: [
-                    {
-                      model: OpeningDay,
-                      as: "openingTimes",
-                      where: {
-                        [Op.or]: [
-                          {
-                            dayNum: {
-                              [Op.and]: [{ [Op.ne]: getDay }, { [Op.ne]: -1 }],
-                            },
-                            checked: true,
-                          },
-                          {
-                            oTime: {
-                              [Op.gt]: curTime,
-                            },
-                            cTime: {
-                              [Op.lte]: lastHour,
-                            },
-                            dayNum: getDay,
-                            checked: true,
-                          },
-                        ],
-                      },
-                    },
-                  ],
+                  include: closeArray,
                 },
               ],
             },
@@ -352,32 +401,7 @@ module.exports = {
               model: Shop,
               as: "VirtualShop",
               required: true,
-              include: [
-                {
-                  model: OpeningDay,
-                  as: "openingTimes",
-                  where: {
-                    [Op.or]: [
-                      {
-                        dayNum: {
-                          [Op.and]: [{ [Op.ne]: getDay }, { [Op.ne]: -1 }],
-                        },
-                        checked: true,
-                      },
-                      {
-                        oTime: {
-                          [Op.gt]: curTime,
-                        },
-                        cTime: {
-                          [Op.lte]: lastHour,
-                        },
-                        dayNum: getDay,
-                        checked: true,
-                      },
-                    ],
-                  },
-                },
-              ],
+              include: closeArray,
             },
           ],
           order: [["createdAt", "DESC"]],
@@ -385,12 +409,13 @@ module.exports = {
 
     //End of available products
 
-    return res.status(OK).send({ error: false, open: product, close:notAvailableProducts });
+    return res
+      .status(OK)
+      .send({ error: false, open: product, close: notAvailableProducts });
     //.catch((error) => res.status(SERVER_ERROR).send(error));
     // return query
     //   .findAll()
     //   .then((product) => res.status(OK).send({ error: false, data: product }))
     //   .catch((error) => res.status(SERVER_ERROR).send(error));
   },
-
 };
