@@ -17,11 +17,12 @@ const {
   Messages,
 } = require("../errors/statusCode");
 const query = new Query(Product);
+
 const imageQuery = new Query(ProductImage);
 const shopQuery = new Query(Shop);
 const openQuery = new Query(OpeningDay);
 const firstHour = "00:00";
-const lastHour = "23:00";
+const lastHour = "23:59";
 const myDate = new Date();
 const curTime = moment(myDate).format("HH:mm");
 const getDay = myDate.getDay();
@@ -70,7 +71,6 @@ const closeArray = [
 
 module.exports = {
   create: async (req, res) => {
-   
     const {
       name,
       price,
@@ -79,23 +79,13 @@ module.exports = {
       desc,
       weight,
       originId,
-      shopId,
       categoryId,
       ingredients,
       subCategoryId,
       unitId,
-      userId,
+      shopId,
     } = req.body;
-
     
-    const { error, value } = validate.nameSchema({ name: name });
-
-    const shop = await shopQuery.findOne({ userId: userId });
-
-    if (!shop)
-      return res
-        .status(VALIDATION_ERROR)
-        .send({ message: "No shop associated with the user", error: true });
 
     return query
       .add({
@@ -106,12 +96,11 @@ module.exports = {
         desc,
         weight,
         originId,
-        shopId: shop.id,
         categoryId,
         subCategoryId,
         originId,
         ingredients: JSON.parse(ingredients),
-        userId,
+        shopId,
         photo: req.file.filename,
         unitId: unitId ? unitId : null,
       })
@@ -120,12 +109,12 @@ module.exports = {
           error: false,
           message: `${product.name} was added successfully.`,
         });
-      })
-      // .catch((error) =>
-      //   res
-      //     .status(SERVER_ERROR)
-      //     .send({ message: Messages.serverError, error: true })
-      // );
+      });
+    // .catch((error) =>
+    //   res
+    //     .status(SERVER_ERROR)
+    //     .send({ message: Messages.serverError, error: true })
+    // );
   },
   findByCategory: async (req, res) => {
     const id = req.params.id;
@@ -278,7 +267,6 @@ module.exports = {
       categoryId,
       ingredients,
       unitId,
-      userId,
       photo,
     } = req.body;
     const id = req.params.id;
@@ -295,7 +283,6 @@ module.exports = {
         categoryId,
         originId,
         ingredients: JSON.parse(ingredients),
-        userId,
         photo: mealPhoto,
         unitId: unitId ? unitId : null,
       })
@@ -367,25 +354,13 @@ module.exports = {
             {
               model: ProductRating,
               as: "productRatings",
-              required: true,
+              required: false,
             },
             {
               model: Shop,
               as: "VirtualShop",
               required: true,
-              include: [
-                {
-                  model: ProductRating,
-                  as: "productRatings",
-                  required: false,
-                },
-                {
-                  model: Shop,
-                  as: "VirtualShop",
-                  required: true,
-                  include: closeArray,
-                },
-              ],
+              include: closeArray,
             },
           ],
           order: [["createdAt", "DESC"]],

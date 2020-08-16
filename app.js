@@ -12,7 +12,7 @@ const app = express();
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
-app.use(cors({ credentials: true, origin: "http://localhost:3000" }));
+app.use(cors({ credentials: true, origin: ["http://localhost:3000"] }));
 // Log requests to the console.
 app.use(logger("dev"));
 
@@ -53,6 +53,7 @@ require(`${refPath}order`)(app);
 require(`${refPath}transaction`)(app);
 require(`${refPath}soldProduct`)(app);
 require(`${refPath}openingDay`)(app);
+require(`${refPath}postCode`)(app);
 app.use((err, req, res, next) => res.json(err));
 
 app.set("port", process.env.PORT || 8000);

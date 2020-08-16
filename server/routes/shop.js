@@ -17,6 +17,8 @@ module.exports = (app) => {
 
   app.get(rootUrl("shops"), controller.findAll);
 
+  app.post(rootUrl("resendEmailVerification"), controller.resendVerificationCodeForEmail);
+
   app.get(rootUrl("shop/duration"), controller.findDuration);
 
   app.post(rootUrl("shopByName"), controller.findShopByName);
@@ -34,6 +36,8 @@ module.exports = (app) => {
   app.patch(rootUrl("shop/:id"), controller.update);
 
   app.patch(rootUrl("settings/:id"), controller.updateSettings);
+
+  app.patch(rootUrl("bankDetail/:id"), controller.updateBankDetail);
 
   app.delete(rootUrl("shop/:id"), controller.delete);
 };

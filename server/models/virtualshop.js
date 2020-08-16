@@ -10,11 +10,15 @@ module.exports = (sequelize, DataTypes) => {
       firstAddress: DataTypes.STRING,
       secondAddress: DataTypes.STRING,
       postCode: DataTypes.STRING,
+      hasIdVerified: DataTypes.BOOLEAN,
       isActive: DataTypes.BOOLEAN,
       verificationCode: DataTypes.STRING,
       shopUrl: DataTypes.STRING,
       phone: DataTypes.STRING,
-      notice: DataTypes.STRING,
+      phoneVerifyCode: DataTypes.STRING,
+      notice: DataTypes.TEXT,
+      about: DataTypes.TEXT,
+      hasEmailVerified: DataTypes.BOOLEAN,
       deliveryPrice: DataTypes.STRING,
       minOrder: DataTypes.STRING,
       maxTime: DataTypes.STRING,
@@ -22,6 +26,8 @@ module.exports = (sequelize, DataTypes) => {
       percentageDiscount: DataTypes.STRING,
       discountAmount: DataTypes.STRING,
       prepareTime: DataTypes.JSONB,
+      bankDetail: DataTypes.JSONB,
+      proofOfIdentity: DataTypes.JSONB,
     },
     {}
   );
@@ -42,6 +48,10 @@ module.exports = (sequelize, DataTypes) => {
     VirtualShop.hasMany(models.Social, {
       foreignKey: "shopId",
       as: "socials",
+    });
+    VirtualShop.hasMany(models.PostCode, {
+      foreignKey: "shopId",
+      as: "postCodes",
     });
     VirtualShop.hasMany(models.OpeningDay, {
       foreignKey: "shopId",

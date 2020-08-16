@@ -3,17 +3,24 @@ const localhost = "http://localhost:3000";
 const productionUrl = "https://foodengo.co.uk/"
 const options = (recipient, name, shopName)=>{
   return {
-    from: `Foodengo<info@foodengo.co.uk>`,
+    from: "Foodengo<info@foodengo.co.uk>",
     sender: "info@foodengo.co.uk",
     to: recipient,
-    subject: "Application Status",
+    subject: "Thank you for you application",
     html: `<img style='height:50px, width:200px' src='cid:foodengo'/>
     <hr/>
-    <h2>Application Received Successfully. </h2><br/>
-    <p><strong>Hi ${name},</strong></p>
-    <p>Thank you for your application regarding listing ${shopName} on Foodengo, our team will review it and get back to you in 2 working days. </p>
-    <p>Please kindly login with the link below to upload your proof of ownership such as international passport or national ID card.</p>
-    <a href="${productionUrl}login">Upload your proof ownership</a>
+    
+    <p><strong>Hello ${shopName},</strong></p>
+    <p>Congratulations on registering on Foodengo.
+    List your  menu and food photos first to start selling.
+    Start selling(Link to selling dashboard)
+    Selling on Foodengo only takes  3 simple steps:</p>
+    
+    <ul>
+    <li>List your food menu and sample photos of foods on your menu.</li>
+    <li>Go to store settings and set your selling options such as minimum spend, discount, delivery price, etc.</li>
+    <li>Enter your bank details when you login to your dashboard under "Bank Details"</li>
+    </ul>
     `,
     attachments: [
       {
@@ -26,7 +33,7 @@ const options = (recipient, name, shopName)=>{
 }
 const activateOptions = (recipient, code)=>{
   return {
-    from: `Foodengo<hello@foodengo.co.uk>`,
+    from: "Foodengo<hello@foodengo.co.uk>",
     sender: "hello@foodengo.co.uk",
     to: recipient,
     subject: "Foodengo Account Activation",
@@ -52,7 +59,7 @@ const activateOptions = (recipient, code)=>{
 }
 const contactOptions = (email, reason, message, fullname)=>{
   return {
-    from: `Enquiry<enquiry@foodengo.co.uk>`,
+    from: "Enquiry<enquiry@foodengo.co.uk>",
     sender: "enquiry@foodengo.co.uk",
     to: "info@foodengo.co.uk",
     subject: reason,
@@ -75,7 +82,7 @@ const contactOptions = (email, reason, message, fullname)=>{
 const send= function(option){
   
   const transporter = nodemailer.createTransport({
-    host: `mail.foodengo.co.uk`,
+    host: "mail.foodengo.co.uk",
     port: 2525,
     tls: {
       rejectUnauthorized: false,

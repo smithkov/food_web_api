@@ -27,62 +27,57 @@ module.exports = {
   signUp: async (req, res) => {
     const { password, email, firstName, lastName } = req.body;
 
-    const { error, value } = validate.nameSchema({ name: "nnamdi" });
+    //const { error, value } = validate.nameSchema({ name: "nnamdi" });
 
-    if (!error) {
-      const role = await roleQuery.findOne({ name: "Customer" });
-      console.log(role);
+    const role = await roleQuery.findOne({ name: "Customer" });
 
-      const emailExist = await query.findOne({ email: email });
-      if (!emailExist) {
-        bcrypt.hash(password, 10, async (err, hash) => {
-          if (err) {
-            return res
-              .status(SERVER_ERROR)
-              .send({ message: serverError, error: true });
-          } else {
-            const newUser = await query.add({
-              email: email,
-              password: hash,
-              firstName: firstName,
-              source: system,
-              lastName: lastName,
-              roleId: role.id,
-            });
-            const user = await query.findPK(newUser.id);
-            const token = jwt.sign(
-              {
-                email: user.email,
-                id: user.id,
-                firstName: user.firstName,
-                role: user.Role.name,
-                photo: user.photo,
-                shopId: user.shops.length > 0 ? user.shops[0].id : null,
-              },
-              secret,
-              {
-                expiresIn: "24h",
-              }
-            );
-            res.cookie(ACCESS_TOKEN, token, {
-              maxAge: 86400 * 1000,
-              httpOnly: true,
-            });
-            return res.status(OK).send({
-              error: false,
-              token: token,
-            });
-          }
-        });
-      } else
-        return res
-          .status(VALIDATION_ERROR)
-          .send({ message: "Email already exist!", error: true });
+    const emailExist = await query.findOne({ email: email });
+    if (!emailExist) {
+      bcrypt.hash(password, 10, async (err, hash) => {
+        if (err) {
+          return res
+            .status(SERVER_ERROR)
+            .send({ message: serverError, error: true });
+        } else {
+          const newUser = await query.add({
+            email: email,
+            password: hash,
+            firstName: firstName,
+            source: system,
+            lastName: lastName,
+            roleId: role.id,
+          });
+          const user = await query.findPK(newUser.id);
+          const token = jwt.sign(
+            {
+              email: user.email,
+              id: user.id,
+              firstName: user.firstName,
+              role: user.Role.name,
+              photo: user.photo,
+              shopId: user.shops.length > 0 ? user.shops[0].id : null,
+            },
+            secret,
+            {
+              expiresIn: "24h",
+            }
+          );
+          res.cookie(ACCESS_TOKEN, token, {
+            maxAge: 86400 * 1000,
+            httpOnly: true,
+          });
+          return res.status(OK).send({
+            error: false,
+            token: token,
+          });
+        }
+      });
+    } else
+      return res
+        .status(VALIDATION_ERROR)
+        .send({ message: "Email already exist!", error: true });
 
-      //return res.status(VALIDATION_ERROR).send({ message: error, error: true });
-    } else {
-      return res.status(VALIDATION_ERROR).send({ message: error, error: true });
-    }
+    //return res.status(VALIDATION_ERROR).send({ message: error, error: true });
   },
   signIn: async (req, res) => {
     const failedLoginMessage = "Email or password is incorrect.";
@@ -274,10 +269,10 @@ module.exports = {
     return query
       .findOne({ email })
       .then((user) => {
-        
-        res
-          .status(OK)
-          .send({ hasEmail: user?true:false, message: `${email} has already been taken.` });
+        res.status(OK).send({
+          hasEmail: user ? true : false,
+          message: `${email} has already been taken.`,
+        });
       })
       .catch((error) =>
         res.status(OK).send({ error: true, message: Messages.serverError })

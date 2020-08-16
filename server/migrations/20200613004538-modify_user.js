@@ -24,9 +24,10 @@ module.exports = {
       //   allowNull: true
       // }),
 
-      queryInterface.addColumn('VirtualShops', 'prepareTime', {
+      queryInterface.addColumn('VirtualShops', 'proofOfIdentity', {
         type: Sequelize.JSONB,
-        allowNull: true
+        allowNull: true,
+        defaultValue:[]
       }),
       
       // queryInterface.addColumn("Transactions", "deliveryPrice", {

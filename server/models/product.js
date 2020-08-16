@@ -7,6 +7,7 @@ module.exports = (sequelize, DataTypes) => {
     discountPrice: DataTypes.STRING,
     quantity: DataTypes.STRING,
     desc: DataTypes.STRING,
+    canBuyerEditIngredient: DataTypes.BOOLEAN,
     ingredients: DataTypes.JSONB,
     weight: DataTypes.STRING
   }, {});

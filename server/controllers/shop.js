@@ -27,6 +27,7 @@ rmSpace = (str) => {
   return str.replace(" ", "");
 };
 module.exports = {
+  //this method is basically for store update, after a seller has registered
   create: async (req, res) => {
     const {
       shopName,
@@ -35,6 +36,7 @@ module.exports = {
       secondAddress,
       postCode,
       cityId,
+      about,
       shopUrl,
     } = req.body;
 
@@ -61,6 +63,7 @@ module.exports = {
             userId: user.id,
             firstAddress,
             secondAddress,
+            about,
             postCode,
             cityId,
             shopUrl: shopUri,
@@ -100,6 +103,7 @@ module.exports = {
     }
   },
   createShopInfo: async (req, res) => {
+    //This method is where a store information is created for the second time when a seller signs up.
     const t = await model.sequelize.transaction();
     const {
       shopName,
@@ -185,7 +189,10 @@ module.exports = {
     const shop = await query.findOne({ verificationCode });
 
     if (shop) {
-      await query.update(shop.id, { isActive: true, verificationCode: "" });
+      await query.update(shop.id, {
+        hasEmailVerified: true,
+        verificationCode: "",
+      });
       return res.status(OK).send({
         message: "Your store account was activated successfully",
         error: false,
@@ -193,6 +200,30 @@ module.exports = {
     } else {
       return res.status(OK).send({
         message: "The activation link has expired or is invalid.",
+        error: true,
+      });
+    }
+  },
+
+  resendVerificationCodeForEmail: async (req, res) => {
+    const shopId = req.body.shopId;
+
+    const shop = await query.findPK(shopId);
+    const rand = Math.floor(111111 + Math.random() * 999999);
+
+    if (shop) {
+      await query.update(shop.id, {
+        hasEmailVerified: false,
+        verificationCode: rand,
+      });
+      
+      const mailOption = Mail.activateOption(shop.User.email, rand);
+      Mail.send(mailOption);
+      return res.status(OK).send({
+        error: false,
+      });
+    } else {
+      return res.status(OK).send({
         error: true,
       });
     }
@@ -210,7 +241,7 @@ module.exports = {
   contactUs(req, res) {
     try {
       const { message, email, name, reason } = req.body;
-      const mailOption = Mail.contactOptions(email, reason, message,name);
+      const mailOption = Mail.contactOptions(email, reason, message, name);
 
       Mail.send(mailOption);
       return res.status(OK).send({ error: false });
@@ -309,6 +340,21 @@ module.exports = {
         percentageDiscount,
         discountAmount,
         notice,
+      })
+      .then((shop) =>
+        res.status(OK).send({ error: false, data: shop, message: savedSuccess })
+      )
+      .catch((error) =>
+        res.status(SERVER_ERROR).send({ message: serverError, error: true })
+      );
+  },
+  updateBankDetail(req, res) {
+    const { bankDetail } = req.body;
+
+    const id = req.params.id;
+    return query
+      .update(id, {
+        bankDetail,
       })
       .then((shop) =>
         res.status(OK).send({ error: false, data: shop, message: savedSuccess })
