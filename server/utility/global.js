@@ -34,7 +34,11 @@ const upload = multer({
 
 const authenticateUser = (req, res, next) => {
   try {
-    const token = req.body.token;
+    const bearerHeader = req.headers.authorization;
+    
+    const bearer = bearerHeader.split(' ');
+    const token = bearer[1];
+   
     
     if (token) {
       const decoded = jwt.verify(token, process.env.SECRET);
