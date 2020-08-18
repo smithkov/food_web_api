@@ -84,6 +84,7 @@ module.exports = {
     const { email, password } = req.body;
 
     const user = await query.findOne({ email: email });
+    console.log("user------------------------"+ user)
     if (!user) {
       return res
         .status(FAILED_AUTH)
@@ -110,10 +111,10 @@ module.exports = {
             expiresIn: "24h",
           }
         );
-        res.cookie(ACCESS_TOKEN, token, {
-          maxAge: 86400 * 1000,
-          httpOnly: true,
-        });
+        // res.cookie(ACCESS_TOKEN, token, {
+        //   maxAge: 86400 * 1000,
+        //   httpOnly: true,
+        // });
         return res.status(OK).send({
           error: false,
           token: token,

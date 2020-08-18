@@ -1,6 +1,6 @@
 const multer = require("multer");
 const jwt = require("jsonwebtoken");
-const { FAILED_AUTH } = require("../errors/statusCode");
+const { FAILED_AUTH, OK } = require("../errors/statusCode");
 const { ACCESS_TOKEN } = require("../utility/constants");
 
 const storage = multer.diskStorage({
@@ -34,18 +34,19 @@ const upload = multer({
 
 const authenticateUser = (req, res, next) => {
   try {
-    const token = req.cookies[ACCESS_TOKEN];
+    const token = req.body.token;
+    
     if (token) {
       const decoded = jwt.verify(token, process.env.SECRET);
       req.userData = decoded;
       next();
     } else
-      res.status(FAILED_AUTH).json({
+      res.status(OK).json({
         data: null,
         error: true,
       });
   } catch (err) {
-    return res.status(FAILED_AUTH).json({
+    return res.status(OK).json({
       data: null,
       error: true,
     });
