@@ -12,7 +12,7 @@ const app = express();
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
-app.use(cors({ credentials: true, origin: ["http://localhost:3000"] }));
+app.use(cors({ credentials: true, origin: "https://foodengo.co.uk" }));
 // Log requests to the console.
 app.use(logger("dev"));
 
