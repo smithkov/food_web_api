@@ -39,7 +39,7 @@ const authenticateUser = (req, res, next) => {
     const bearer = bearerHeader.split(' ');
     const token = bearer[1];
    
-    
+    console.log(token+"---------------------------------------------token")
     if (token) {
       const decoded = jwt.verify(token, process.env.SECRET);
       req.userData = decoded;

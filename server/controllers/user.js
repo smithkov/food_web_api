@@ -84,7 +84,7 @@ module.exports = {
     const { email, password } = req.body;
 
     const user = await query.findOne({ email: email });
-    console.log("user------------------------"+ user)
+   
     if (!user) {
       return res
         .status(FAILED_AUTH)
