@@ -24,11 +24,11 @@ module.exports = {
       //   allowNull: true
       // }),
 
-      queryInterface.addColumn('VirtualShops', 'proofOfIdentity', {
-        type: Sequelize.JSONB,
-        allowNull: true,
-        defaultValue:[]
-      }),
+      // queryInterface.addColumn('VirtualShops', 'proofOfIdentity', {
+      //   type: Sequelize.JSONB,
+      //   allowNull: true,
+      //   defaultValue:[]
+      // }),
       
       // queryInterface.addColumn("Transactions", "deliveryPrice", {
       //   type: Sequelize.DECIMAL,
@@ -42,18 +42,18 @@ module.exports = {
       //   type: Sequelize.DECIMAL,
       //   allowNull: true,
       // }),
-      // queryInterface.addColumn("RatingResponses", "shopId", {
+      // queryInterface.addColumn("VirtualShops", "originId", {
       //   type: Sequelize.UUID,
       //   references: {
-      //     model: "VirtualShops",
+      //     model: "Origins",
       //     key: "id",
-      //     as: "shopId",
+      //     as: "originId",
       //   },
       // }),
-      // queryInterface.addColumn("Socials", "twitter", {
-      //   type: Sequelize.STRING,
-      //   allowNull: true,
-      // }),
+      queryInterface.addColumn("Origins", "code", {
+        type: Sequelize.STRING,
+        allowNull: true,
+      }),
       // queryInterface.addColumn("Socials", "instagram", {
       //   type: Sequelize.STRING,
       //   allowNull: true,

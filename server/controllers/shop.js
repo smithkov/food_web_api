@@ -1,9 +1,11 @@
 const Shop = require("../models").VirtualShop;
 const bcrypt = require("bcryptjs");
 const User = require("../models").User;
-const Banner = require("../models").ShopBanner;
+const Rating = require("../models").Rating;
 const model = require("../models");
 const Role = require("../models").Role;
+const Op = require("sequelize").Op;
+const Origin = require("../models").Origin;
 const Query = new require("../queries/crud");
 const validate = require("../validations/validation");
 const Mail = require("../utility/mail");
@@ -20,7 +22,7 @@ const query = new Query(Shop);
 
 const userQuery = new Query(User);
 const roleQuery = new Query(Role);
-const bannerQuery = new Query(Banner);
+
 const fs = require("fs");
 const { savedSuccess, serverError } = Messages;
 rmSpace = (str) => {
@@ -31,23 +33,21 @@ module.exports = {
   create: async (req, res) => {
     const {
       shopName,
-      userId,
+      shopId,
       firstAddress,
       secondAddress,
       postCode,
       cityId,
       about,
       shopUrl,
+      originId,
     } = req.body;
-
-    const t = await model.sequelize.transaction();
 
     try {
       const logoObject = req.files["logo"];
       const bannerObject = req.files["banner"];
 
-      const user = await userQuery.findPK(userId);
-      const hasShop = await query.findOne({ userId: userId });
+      const hasShop = await query.findPK(shopId);
 
       const logo = logoObject ? logoObject[0].filename : null;
       const banner = bannerObject ? bannerObject[0].filename : null;
@@ -55,41 +55,21 @@ module.exports = {
       if (hasShop) {
         const shopUri = shopUrl != "" ? rmSpace(shopUrl) : shopName;
 
-        const updateShop = await query.updateTransact(
-          hasShop.id,
-          {
-            shopName,
-            logo: logo ? logo : hasShop.logo,
-            userId: user.id,
-            firstAddress,
-            secondAddress,
-            about,
-            postCode,
-            cityId,
-            shopUrl: shopUri,
-          },
-          t
-        );
-        if (banner) {
-          if (hasShop.shopBanners[0]) {
-            const updateShop = await bannerQuery.updateTransact(
-              hasShop.shopBanners[0].id,
-              {
-                bannerPath: banner,
-              },
-              t
-            );
-          } else {
-            const createBanner = await bannerQuery.addTransact(
-              {
-                shopId: hasShop.id,
-                bannerPath: banner,
-              },
-              t
-            );
-          }
-        }
-        await t.commit();
+        const shopObject = {
+          shopName,
+          logo: logo ? logo : hasShop.logo,
+          banner: banner ? banner : hasShop.banner,
+          firstAddress,
+          secondAddress,
+          about,
+          postCode,
+          cityId,
+          shopUrl: shopUri,
+          originId,
+        };
+
+        const updateShop = await query.update(hasShop.id, shopObject);
+
         return res.status(OK).send({
           data: updateShop,
           error: false,
@@ -97,13 +77,11 @@ module.exports = {
         });
       }
     } catch (err) {
-      await t.rollback();
-
       res.status(SERVER_ERROR).send({ message: serverError, error: true });
     }
   },
   createShopInfo: async (req, res) => {
-    //This method is where a store information is created for the second time when a seller signs up.
+    //This method is where a store information is created for the first time when a seller registers.
     const t = await model.sequelize.transaction();
     const {
       shopName,
@@ -115,6 +93,7 @@ module.exports = {
       email,
       password,
       cityId,
+      originId,
     } = req.body;
 
     try {
@@ -150,6 +129,7 @@ module.exports = {
                 cityId,
                 phone,
                 shopUrl: shopName,
+                originId,
                 verificationCode: rand,
               },
               t
@@ -216,7 +196,7 @@ module.exports = {
         hasEmailVerified: false,
         verificationCode: rand,
       });
-      
+
       const mailOption = Mail.activateOption(shop.User.email, rand);
       Mail.send(mailOption);
       return res.status(OK).send({
@@ -371,6 +351,51 @@ module.exports = {
       .catch((error) =>
         res.status(SERVER_ERROR).send({ message: serverError, error: true })
       );
+  },
+  shopListing(req, res) {
+    return Shop.findAll({
+      include: [
+        {
+          model: Origin,
+          as: "Origin",
+          required: true,
+        },
+        {
+          model: Rating,
+          as: "ratings",
+          required: false,
+        },
+      ],
+    }).then((shop) => res.status(OK).send({ error: false, data: shop }));
+  },
+  shopSearch(req, res) {
+    const search = req.body.search.toLowerCase();
+    return Shop.findAll({
+      
+
+      where: {
+        [Op.or]: [
+          model.sequelize.where(model.sequelize.fn('lower', model.sequelize.col('shopName')), {
+            [Op.like]: `%${search}%`
+          }),
+          model.sequelize.where(model.sequelize.fn('lower', model.sequelize.col('about')), {
+            [Op.like]: `%${search}%`
+          }),
+        ],
+      },
+      include: [
+        {
+          model: Origin,
+          as: "Origin",
+          required: true,
+        },
+        {
+          model: Rating,
+          as: "ratings",
+          required: false,
+        },
+      ],
+    }).then((shop) => res.status(OK).send({ error: false, data: shop }));
   },
   findDuration(req, res) {
     return res.status(OK).send({ error: false, data: duration });
