@@ -352,6 +352,30 @@ module.exports = {
         res.status(SERVER_ERROR).send({ message: serverError, error: true })
       );
   },
+
+  findByOrigin(req, res) {
+    const { originId } = req.body;
+
+    return Shop.findAll({
+      where: { originId },
+      include: [
+        {
+          model: Origin,
+          as: "Origin",
+          required: true,
+        },
+        {
+          model: Rating,
+          as: "ratings",
+          required: false,
+        },
+      ],
+    })
+      .then((shop) => res.status(OK).send({ error: false, data: shop }))
+      .catch((error) =>
+        res.status(SERVER_ERROR).send({ message: serverError, error: true })
+      );
+  },
   shopListing(req, res) {
     return Shop.findAll({
       include: [
@@ -371,16 +395,20 @@ module.exports = {
   shopSearch(req, res) {
     const search = req.body.search.toLowerCase();
     return Shop.findAll({
-      
-
       where: {
         [Op.or]: [
-          model.sequelize.where(model.sequelize.fn('lower', model.sequelize.col('shopName')), {
-            [Op.like]: `%${search}%`
-          }),
-          model.sequelize.where(model.sequelize.fn('lower', model.sequelize.col('about')), {
-            [Op.like]: `%${search}%`
-          }),
+          model.sequelize.where(
+            model.sequelize.fn("lower", model.sequelize.col("shopName")),
+            {
+              [Op.like]: `%${search}%`,
+            }
+          ),
+          model.sequelize.where(
+            model.sequelize.fn("lower", model.sequelize.col("about")),
+            {
+              [Op.like]: `%${search}%`,
+            }
+          ),
         ],
       },
       include: [

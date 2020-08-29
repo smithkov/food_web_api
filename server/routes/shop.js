@@ -23,6 +23,8 @@ module.exports = (app) => {
 
   app.post(rootUrl("shopByName"), controller.findShopByName);
 
+  app.post(rootUrl("shopByOrigin"), controller.findByOrigin);
+
   app.post(rootUrl("shopByUrl"), controller.findShopByUrl);
 
   app.post(rootUrl("contactUs"), controller.contactUs);
