@@ -10,6 +10,9 @@ module.exports = {
       rating: {
         type: Sequelize.STRING
       },
+      title: {
+        type: Sequelize.STRING
+      },
       content: {
         type: Sequelize.STRING
       },

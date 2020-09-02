@@ -9,6 +9,7 @@ module.exports = (sequelize, DataTypes) => {
       createdAt: DataTypes.DATE,
       updatedAt: DataTypes.DATE,
     },
+    
     {}
   );
   Rating.associate = function (models) {

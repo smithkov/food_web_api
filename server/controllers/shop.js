@@ -2,6 +2,8 @@ const Shop = require("../models").VirtualShop;
 const bcrypt = require("bcryptjs");
 const User = require("../models").User;
 const Rating = require("../models").Rating;
+const StoreTime = require("../models").StoreTime;
+const OpeningDay = require("../models").OpeningDay;
 const model = require("../models");
 const Role = require("../models").Role;
 const Op = require("sequelize").Op;
@@ -9,7 +11,13 @@ const Origin = require("../models").Origin;
 const Query = new require("../queries/crud");
 const validate = require("../validations/validation");
 const Mail = require("../utility/mail");
-const { duration } = require("../utility/global");
+const moment = require("moment");
+const { duration, days } = require("../utility/global");
+const firstHour = "00:00";
+const lastHour = "23:00";
+const myDate = new Date();
+const curTime = moment(myDate).format("HH:mm");
+const getDay = myDate.getDay();
 const {
   SERVER_ERROR,
   OK,
@@ -43,7 +51,7 @@ module.exports = {
       originId,
     } = req.body;
 
-    try {
+    
       const logoObject = req.files["logo"];
       const bannerObject = req.files["banner"];
 
@@ -76,9 +84,7 @@ module.exports = {
           message: "Saved successfully.",
         });
       }
-    } catch (err) {
-      res.status(SERVER_ERROR).send({ message: serverError, error: true });
-    }
+    
   },
   createShopInfo: async (req, res) => {
     //This method is where a store information is created for the first time when a seller registers.
@@ -377,7 +383,10 @@ module.exports = {
       );
   },
   shopListing(req, res) {
+    const day = days()[new Date().getDay()];
     return Shop.findAll({
+      distinct: true,
+      subQuery: false,
       include: [
         {
           model: Origin,
@@ -388,6 +397,72 @@ module.exports = {
           model: Rating,
           as: "ratings",
           required: false,
+        },
+        {
+          model: StoreTime,
+          as: "storeTime",
+          required: true,
+          where: {
+            [Op.and]: [
+              {
+                [day]: {
+                  oTime: {
+                    [Op.lte]: curTime,
+                  },
+                },
+              },
+              {
+                [day]: {
+                  cTime: {
+                    [Op.gte]: curTime,
+                  },
+                },
+              },
+              { [day]: { dayNum: getDay } },
+              { [day]: { checked: true } },
+            ],
+          },
+        },
+      ],
+    }).then((shop) => res.status(OK).send({ error: false, data: shop }));
+  },
+  shopListingClose(req, res) {
+    const day = days()[new Date().getDay()];
+    return Shop.findAll({
+      distinct: true,
+      subQuery: false,
+      include: [
+        {
+          model: Origin,
+          as: "Origin",
+          required: true,
+        },
+        {
+          model: Rating,
+          as: "ratings",
+          required: false,
+        },
+        {
+          model: StoreTime,
+          as: "storeTime",
+          required: true,
+          where: {
+            [Op.or]: [
+              { [day]: { dayNum: { [Op.ne]: getDay } } },
+              {
+                [Op.and]: [
+                  { [day]: { dayNum: getDay } },
+                  {
+                    [day]: {
+                      oTime: {
+                        [Op.gt]: curTime,
+                      },
+                    },
+                  },
+                ],
+              },
+            ],
+          },
         },
       ],
     }).then((shop) => res.status(OK).send({ error: false, data: shop }));

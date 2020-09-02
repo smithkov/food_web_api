@@ -6,21 +6,18 @@ module.exports = {
         allowNull: false,
         primaryKey: true,
         type: Sequelize.UUID
+
       },
-      name: {
+      twitter: {
         type: Sequelize.STRING
       },
-      url: {
+      facebook: {
         type: Sequelize.STRING
       },
-      socialTypeId: {
-        type: Sequelize.UUID,
-        references: {
-          model: 'SocialTypes',
-          key: 'id',
-          as: 'socialTypeId',
-        },
+      instagram: {
+        type: Sequelize.STRING
       },
+      
       shopId: {
         type: Sequelize.UUID,
         references: {

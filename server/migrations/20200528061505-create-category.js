@@ -10,6 +10,9 @@ module.exports = {
       name: {
         type: Sequelize.STRING
       },
+      display: {
+        type: Sequelize.STRING
+      },
       imagePath: {
         type: Sequelize.STRING
       },

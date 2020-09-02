@@ -12,7 +12,7 @@ const app = express();
 const cookieParser = require("cookie-parser");
 app.use(cookieParser());
 
-app.use(cors({ credentials: true, origin: ["https://foodengo.co.uk"] }));
+app.use(cors({ credentials: true, origin: "https://foodengo.co.uk"}));
 // Log requests to the console.
 app.use(logger("dev"));
 
@@ -58,7 +58,7 @@ app.use((err, req, res, next) => res.json(err));
 
 app.set("port", process.env.PORT || 8000);
 
-app.listen(app.get("port"), function () {
+app.listen(app.get("port"), function() {
   console.log("Server started on port " + app.get("port"));
 });
 

@@ -3,6 +3,7 @@ module.exports = (sequelize, DataTypes) => {
   const RatingResponse = sequelize.define('RatingResponse', {
     content: DataTypes.STRING
   }, {});
+  
   RatingResponse.associate = function(models) {
     // associations can be defined here
     RatingResponse.belongsTo(models.Rating, {

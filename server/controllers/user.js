@@ -219,6 +219,7 @@ module.exports = {
             maxAge: 86400 * 1000,
             httpOnly: true,
           });
+          
           return res.status(OK).send({
             error: false,
             token: token,

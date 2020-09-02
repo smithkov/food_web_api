@@ -47,22 +47,38 @@ const closeArray = [
     model: OpeningDay,
     as: "openingTimes",
     where: {
-      [Op.or]: [
+      [Op.and]: [
         {
-          dayNum: {
-            [Op.and]: [{ [Op.ne]: getDay }, { [Op.ne]: -1 }],
-          },
-          checked: true,
+          [Op.or]: [
+            {
+              dayNum: {
+                [Op.and]: [{ [Op.ne]: getDay }, { [Op.ne]: -1 }],
+              },
+              checked: true,
+            },
+            {
+              oTime: {
+                [Op.gt]: curTime,
+              },
+              cTime: {
+                [Op.lte]: lastHour,
+              },
+              dayNum: getDay,
+              checked: true,
+            },
+          ],
         },
         {
-          oTime: {
-            [Op.gt]: curTime,
+          [Op.not]: {
+            oTime: {
+              [Op.between]: [firstHour, curTime],
+            },
+            cTime: {
+              [Op.lte]: lastHour,
+            },
+            dayNum: getDay,
+            checked: true,
           },
-          cTime: {
-            [Op.lte]: lastHour,
-          },
-          dayNum: getDay,
-          checked: true,
         },
       ],
     },
@@ -85,7 +101,6 @@ module.exports = {
       unitId,
       shopId,
     } = req.body;
-    
 
     return query
       .add({

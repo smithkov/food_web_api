@@ -35,11 +35,11 @@ const upload = multer({
 const authenticateUser = (req, res, next) => {
   try {
     const bearerHeader = req.headers.authorization;
-    
-    const bearer = bearerHeader.split(' ');
+
+    const bearer = bearerHeader.split(" ");
     const token = bearer[1];
-   
-    console.log(token+"---------------------------------------------token")
+
+    console.log(token + "---------------------------------------------token");
     if (token) {
       const decoded = jwt.verify(token, process.env.SECRET);
       req.userData = decoded;
@@ -72,8 +72,20 @@ const duration = [
   { time: "80 mins", value: 80 },
   { time: "120 mins", value: 85 },
 ];
+const daysOfWeek = () => {
+  return [
+    "Sunday",
+    "Monday",
+    "Tuesday",
+    "Wednesday",
+    "Thursday",
+    "Friday",
+    "Saturday",
+  ];
+};
 module.exports = {
   upload: upload,
   auth: authenticateUser,
   duration: duration,
+  days: daysOfWeek,
 };

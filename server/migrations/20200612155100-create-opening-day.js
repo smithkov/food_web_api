@@ -8,10 +8,25 @@ module.exports = {
         type: Sequelize.UUID,
       },
       opening: {
+        type: Sequelize.DATE,
+      },
+      oTime: {
+        type: Sequelize.TIME,
+      },
+      cTime: {
         type: Sequelize.TIME,
       },
       closing: {
-        type: Sequelize.TIME,
+        type: Sequelize.DATE,
+      },
+      day: {
+        type: Sequelize.STRING,
+      },
+      dayNum: {
+        type: Sequelize.INTEGER,
+      },
+      checked: {
+        type: Sequelize.BOOLEAN,
       },
       shopId: {
         type: Sequelize.UUID,
@@ -21,7 +36,7 @@ module.exports = {
           as: "shopId",
         },
       },
-    
+     
       createdAt: {
         allowNull: false,
         type: Sequelize.DATE,

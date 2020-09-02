@@ -7,14 +7,28 @@ module.exports = {
       //   "Users", // table name
       //   "firstAddress", // new field name
       //   {
-      //     type: Sequelize.STRING,
-      //     allowNull: true,
+      //     allowNull: false,
+      //     autoIncrement: false,
+      //     primaryKey: true,
+      //     type: Sequelize.UUID,
       //   }
       // ),
-      // queryInterface.addColumn("Users", "phone", {
-      //   type: Sequelize.STRING,
-      //   allowNull: true,
-      // }),
+      queryInterface.addColumn("Users", "firstAddress", {
+        type: Sequelize.STRING,
+        allowNull: true,
+      }),
+      queryInterface.addColumn("Users", "expiry", {
+        type: Sequelize.STRING,
+        allowNull: true,
+      }),
+      queryInterface.addColumn("Users", "secondAddress", {
+        type: Sequelize.STRING,
+        allowNull: true,
+      }),
+      queryInterface.addColumn("Users", "postCode", {
+        type: Sequelize.STRING,
+        allowNull: true,
+      }),
       // queryInterface.addColumn('VirtualShops', 'verificationCode', {
       //   type: Sequelize.STRING,
       //   allowNull: true,
@@ -29,7 +43,7 @@ module.exports = {
       //   allowNull: true,
       //   defaultValue:[]
       // }),
-      
+
       // queryInterface.addColumn("Transactions", "deliveryPrice", {
       //   type: Sequelize.DECIMAL,
       //   allowNull: true,
@@ -50,10 +64,10 @@ module.exports = {
       //     as: "originId",
       //   },
       // }),
-      queryInterface.addColumn("Origins", "code", {
-        type: Sequelize.STRING,
-        allowNull: true,
-      }),
+      // queryInterface.addColumn("Origins", "code", {
+      //   type: Sequelize.STRING,
+      //   allowNull: true,
+      // }),
       // queryInterface.addColumn("Socials", "instagram", {
       //   type: Sequelize.STRING,
       //   allowNull: true,
@@ -66,12 +80,12 @@ module.exports = {
       //   type: Sequelize.STRING,
       //   allowNull: true,
       // }),
-      //  queryInterface.addColumn("ProductRatings", "productId", {
+      // queryInterface.addColumn("StoreTimes", "shopId", {
       //   type: Sequelize.UUID,
       //   references: {
-      //     model: "Products",
+      //     model: "VirtualShops",
       //     key: "id",
-      //     as: "productId",
+      //     as: "shopId",
       //   },
       // }),
     ]);

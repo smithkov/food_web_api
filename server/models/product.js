@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
     Product.belongsTo(models.SubCategory, {
       foreignKey: 'subCategoryId'
     });
+    
     Product.belongsTo(models.Origin, {
       foreignKey: 'originId'
     });

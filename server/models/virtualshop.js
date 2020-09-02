@@ -57,6 +57,10 @@ module.exports = (sequelize, DataTypes) => {
       foreignKey: "shopId",
       as: "openingTimes",
     });
+    VirtualShop.hasMany(models.StoreTime, {
+      foreignKey: "shopId",
+      as: "storeTime",
+    });
     VirtualShop.hasMany(models.ShopVideo, {
       foreignKey: "shopId",
       as: "shopVideos",

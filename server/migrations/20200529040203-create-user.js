@@ -1,66 +1,79 @@
-'use strict';
+"use strict";
 module.exports = {
   up: (queryInterface, Sequelize) => {
-    return queryInterface.createTable('Users', {
+    return queryInterface.createTable("Users", {
       id: {
         allowNull: false,
         primaryKey: true,
-        type: Sequelize.UUID
+        type: Sequelize.UUID,
       },
       firstName: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       lastName: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       userName: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       password: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
+      },
+      expiry: {
+        type: Sequelize.DATE,
       },
       ip: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       source: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       email: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
       lastLogin: {
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       photo: {
-        type: Sequelize.STRING
+        type: Sequelize.STRING,
       },
+      firstAddress: {
+        type: Sequelize.STRING,
+      },
+      secondAddress: {
+        type: Sequelize.STRING,
+      },
+      postCode: {
+        type: Sequelize.STRING,
+      },
+
       createdAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       updatedAt: {
         allowNull: false,
-        type: Sequelize.DATE
+        type: Sequelize.DATE,
       },
       roleId: {
         type: Sequelize.UUID,
         references: {
-          model: 'Roles',
-          key: 'id',
-          as: 'roleId',
+          model: "Roles",
+          key: "id",
+          as: "roleId",
         },
       },
       statusId: {
         type: Sequelize.UUID,
         references: {
-          model: 'Statuses',
-          key: 'id',
-          as: 'statusId',
+          model: "Statuses",
+          key: "id",
+          as: "statusId",
         },
       },
     });
   },
   down: (queryInterface, Sequelize) => {
-    return queryInterface.dropTable('Users');
-  }
+    return queryInterface.dropTable("Users");
+  },
 };

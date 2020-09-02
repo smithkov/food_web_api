@@ -31,6 +31,8 @@ module.exports = (app) => {
 
   app.post(rootUrl("storeListing"), controller.shopListing);
 
+  app.post(rootUrl("storeListingClose"), controller.shopListingClose);
+
   app.post(rootUrl("listingSearch"), controller.shopSearch);
 
   app.get(rootUrl("shops/byUser/:id"), controller.findByUser);

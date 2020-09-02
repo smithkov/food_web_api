@@ -14,6 +14,7 @@ module.exports = (sequelize, DataTypes) => {
     photo: DataTypes.STRING,
     firstAddress: DataTypes.STRING,
     secondAddress: DataTypes.STRING,
+    
     postCode: DataTypes.STRING
   }, {});
   User.associate = function(models) {
