@@ -87,6 +87,10 @@ module.exports = {
       proofOfIdentity: {
         type: Sequelize.JSONB,
       },
+      isPreOrder: {
+        type: Sequelize.BOOLEAN,
+        defaultValue:false
+      },
       userId: {
         type: Sequelize.UUID,
         references: {

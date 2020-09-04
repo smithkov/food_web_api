@@ -30,9 +30,55 @@ const query = new Query(Shop);
 
 const userQuery = new Query(User);
 const roleQuery = new Query(Role);
+const day = days()[new Date().getDay()];
 
 const fs = require("fs");
 const { savedSuccess, serverError } = Messages;
+const openQuery = [
+  {
+    [day]: {
+      oTime: {
+        [Op.lte]: curTime,
+      },
+    },
+  },
+  {
+    [day]: {
+      cTime: {
+        [Op.gte]: curTime,
+      },
+    },
+  },
+  { [day]: { dayNum: getDay } },
+  { [day]: { checked: true } },
+];
+const closeQuery = [
+  { [day]: { dayNum: { [Op.ne]: getDay } } },
+  {
+    [Op.and]: [
+      { [day]: { dayNum: getDay } },
+      {
+        [day]: {
+          oTime: {
+            [Op.gt]: curTime,
+          },
+        },
+      },
+    ],
+  },
+  {
+    [Op.and]: [
+      {
+        [day]: {
+          cTime: {
+            [Op.lte]: curTime,
+          },
+        },
+      },
+      {},
+    ],
+  },
+];
 rmSpace = (str) => {
   return str.replace(" ", "");
 };
@@ -51,40 +97,38 @@ module.exports = {
       originId,
     } = req.body;
 
-    
-      const logoObject = req.files["logo"];
-      const bannerObject = req.files["banner"];
+    const logoObject = req.files["logo"];
+    const bannerObject = req.files["banner"];
 
-      const hasShop = await query.findPK(shopId);
+    const hasShop = await query.findPK(shopId);
 
-      const logo = logoObject ? logoObject[0].filename : null;
-      const banner = bannerObject ? bannerObject[0].filename : null;
+    const logo = logoObject ? logoObject[0].filename : null;
+    const banner = bannerObject ? bannerObject[0].filename : null;
 
-      if (hasShop) {
-        const shopUri = shopUrl != "" ? rmSpace(shopUrl) : shopName;
+    if (hasShop) {
+      const shopUri = shopUrl != "" ? rmSpace(shopUrl) : shopName;
 
-        const shopObject = {
-          shopName,
-          logo: logo ? logo : hasShop.logo,
-          banner: banner ? banner : hasShop.banner,
-          firstAddress,
-          secondAddress,
-          about,
-          postCode,
-          cityId,
-          shopUrl: shopUri,
-          originId,
-        };
+      const shopObject = {
+        shopName,
+        logo: logo ? logo : hasShop.logo,
+        banner: banner ? banner : hasShop.banner,
+        firstAddress,
+        secondAddress,
+        about,
+        postCode,
+        cityId,
+        shopUrl: shopUri,
+        originId,
+      };
 
-        const updateShop = await query.update(hasShop.id, shopObject);
+      const updateShop = await query.update(hasShop.id, shopObject);
 
-        return res.status(OK).send({
-          data: updateShop,
-          error: false,
-          message: "Saved successfully.",
-        });
-      }
-    
+      return res.status(OK).send({
+        data: updateShop,
+        error: false,
+        message: "Saved successfully.",
+      });
+    }
   },
   createShopInfo: async (req, res) => {
     //This method is where a store information is created for the first time when a seller registers.
@@ -349,6 +393,19 @@ module.exports = {
         res.status(SERVER_ERROR).send({ message: serverError, error: true })
       );
   },
+  updatePreOrder(req, res) {
+    const { isPreOrder } = req.body;
+
+    const id = req.params.id;
+    return query
+      .update(id, {
+        isPreOrder,
+      })
+      .then((shop) => res.status(OK).send({ error: false }))
+      .catch((error) =>
+        res.status(SERVER_ERROR).send({ message: serverError, error: true })
+      );
+  },
 
   findAll(req, res) {
     return query
@@ -359,10 +416,21 @@ module.exports = {
       );
   },
 
-  findByOrigin(req, res) {
+  findShopPreOrder(req, res) {
+    const shopId = req.body.shopId;
+    return Shop.findByPk(shopId, {
+      attributes: ["isPreOrder"],
+    })
+      .then((shop) => res.status(OK).send({ error: false, data: shop }))
+      .catch((error) =>
+        res.status(SERVER_ERROR).send({ message: serverError, error: true })
+      );
+  },
+
+  findByOrigin: async (req, res) => {
     const { originId } = req.body;
 
-    return Shop.findAll({
+    const close = await Shop.findAll({
       where: { originId },
       include: [
         {
@@ -375,59 +443,43 @@ module.exports = {
           as: "ratings",
           required: false,
         },
-      ],
-    })
-      .then((shop) => res.status(OK).send({ error: false, data: shop }))
-      .catch((error) =>
-        res.status(SERVER_ERROR).send({ message: serverError, error: true })
-      );
-  },
-  shopListing(req, res) {
-    const day = days()[new Date().getDay()];
-    return Shop.findAll({
-      distinct: true,
-      subQuery: false,
-      include: [
-        {
-          model: Origin,
-          as: "Origin",
-          required: true,
-        },
-        {
-          model: Rating,
-          as: "ratings",
-          required: false,
-        },
         {
           model: StoreTime,
           as: "storeTime",
           required: true,
           where: {
-            [Op.and]: [
-              {
-                [day]: {
-                  oTime: {
-                    [Op.lte]: curTime,
-                  },
-                },
-              },
-              {
-                [day]: {
-                  cTime: {
-                    [Op.gte]: curTime,
-                  },
-                },
-              },
-              { [day]: { dayNum: getDay } },
-              { [day]: { checked: true } },
-            ],
+            [Op.or]: closeQuery,
           },
         },
       ],
-    }).then((shop) => res.status(OK).send({ error: false, data: shop }));
+    });
+
+    const open = await Shop.findAll({
+      where: { originId },
+      include: [
+        {
+          model: Origin,
+          as: "Origin",
+          required: true,
+        },
+        {
+          model: Rating,
+          as: "ratings",
+          required: false,
+        },
+        {
+          model: StoreTime,
+          as: "storeTime",
+          required: true,
+          where: {
+            [Op.and]: openQuery,
+          },
+        },
+      ],
+    });
+    return res.status(OK).send({ error: false, data: { close, open } });
   },
-  shopListingClose(req, res) {
-    const day = days()[new Date().getDay()];
+  shopListing(req, res) {
     return Shop.findAll({
       distinct: true,
       subQuery: false,
@@ -447,21 +499,35 @@ module.exports = {
           as: "storeTime",
           required: true,
           where: {
-            [Op.or]: [
-              { [day]: { dayNum: { [Op.ne]: getDay } } },
-              {
-                [Op.and]: [
-                  { [day]: { dayNum: getDay } },
-                  {
-                    [day]: {
-                      oTime: {
-                        [Op.gt]: curTime,
-                      },
-                    },
-                  },
-                ],
-              },
-            ],
+            [Op.and]: openQuery,
+          },
+        },
+      ],
+    }).then((shop) => {
+      res.status(OK).send({ error: false, data: shop });
+    });
+  },
+  shopListingClose(req, res) {
+    return Shop.findAll({
+      distinct: true,
+      subQuery: false,
+      include: [
+        {
+          model: Origin,
+          as: "Origin",
+          required: true,
+        },
+        {
+          model: Rating,
+          as: "ratings",
+          required: false,
+        },
+        {
+          model: StoreTime,
+          as: "storeTime",
+          required: true,
+          where: {
+            [Op.or]: closeQuery,
           },
         },
       ],

@@ -13,22 +13,22 @@ module.exports = {
       //     type: Sequelize.UUID,
       //   }
       // ),
-      queryInterface.addColumn("Users", "firstAddress", {
-        type: Sequelize.STRING,
-        allowNull: true,
-      }),
-      queryInterface.addColumn("Users", "expiry", {
-        type: Sequelize.STRING,
-        allowNull: true,
-      }),
-      queryInterface.addColumn("Users", "secondAddress", {
-        type: Sequelize.STRING,
-        allowNull: true,
-      }),
-      queryInterface.addColumn("Users", "postCode", {
-        type: Sequelize.STRING,
-        allowNull: true,
-      }),
+      // queryInterface.addColumn("Users", "firstAddress", {
+      //   type: Sequelize.STRING,
+      //   allowNull: true,
+      // }),
+      // queryInterface.addColumn("Users", "expiry", {
+      //   type: Sequelize.STRING,
+      //   allowNull: true,
+      // }),
+      // queryInterface.addColumn("Users", "secondAddress", {
+      //   type: Sequelize.STRING,
+      //   allowNull: true,
+      // }),
+      // queryInterface.addColumn("Users", "postCode", {
+      //   type: Sequelize.STRING,
+      //   allowNull: true,
+      // }),
       // queryInterface.addColumn('VirtualShops', 'verificationCode', {
       //   type: Sequelize.STRING,
       //   allowNull: true,
@@ -72,10 +72,11 @@ module.exports = {
       //   type: Sequelize.STRING,
       //   allowNull: true,
       // }),
-      // queryInterface.addColumn("VirtualShops", "maxTime", {
-      //   type: Sequelize.STRING,
-      //   allowNull: true,
-      // }),
+      queryInterface.addColumn("VirtualShops", "isPreOrder", {
+        type: Sequelize.BOOLEAN,
+        allowNull: true,
+        defaultValue:false
+      }),
       // queryInterface.addColumn("VirtualShops", "minTime", {
       //   type: Sequelize.STRING,
       //   allowNull: true,

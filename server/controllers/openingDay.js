@@ -140,6 +140,7 @@ module.exports = {
       const sun = {
         opening: selectedSunMin,
         closing: selectedSunMax,
+        day: "Sunday",
         oTime: moment(selectedSunMin).format(formatTime),
         cTime: moment(selectedSunMax).format(formatTime),
         dayNum: sunChecked ? 0 : negNum,
@@ -149,6 +150,7 @@ module.exports = {
       const mon = {
         opening: selectedMonMin,
         closing: selectedMonMax,
+        day: "Monday",
         oTime: moment(selectedMonMin).format(formatTime),
         cTime: moment(selectedMonMax).format(formatTime),
         dayNum: monChecked ? 1 : negNum,
@@ -158,6 +160,7 @@ module.exports = {
       const tue = {
         opening: selectedTueMin,
         closing: selectedTueMax,
+        day: "Tuesday",
         oTime: moment(selectedTueMin).format(formatTime),
         cTime: moment(selectedTueMax).format(formatTime),
         dayNum: tueChecked ? 2 : negNum,
@@ -167,6 +170,7 @@ module.exports = {
       const wed = {
         opening: selectedWedMin,
         closing: selectedWedMax,
+        day: "Wednesday",
         oTime: moment(selectedWedMin).format(formatTime),
         cTime: moment(selectedWedMax).format(formatTime),
         dayNum: wedChecked ? 3 : negNum,
@@ -176,6 +180,7 @@ module.exports = {
       const thur = {
         opening: selectedThurMin,
         closing: selectedThurMax,
+        day: "Thursday",
         oTime: moment(selectedThurMin).format(formatTime),
         cTime: moment(selectedThurMax).format(formatTime),
 
@@ -186,6 +191,7 @@ module.exports = {
       const fri = {
         opening: selectedFriMin,
         closing: selectedFriMax,
+        day: "Friday",
         oTime: moment(selectedFriMin).format(formatTime),
         cTime: moment(selectedFriMax).format(formatTime),
         dayNum: friChecked ? 5 : negNum,
@@ -195,6 +201,7 @@ module.exports = {
       const sat = {
         opening: selectedSatMin,
         closing: selectedSatMax,
+        day: "Saturday",
         oTime: moment(selectedSatMin).format(formatTime),
         cTime: moment(selectedSatMax).format(formatTime),
         dayNum: satChecked ? 6 : negNum,

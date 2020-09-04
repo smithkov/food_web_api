@@ -20,6 +20,7 @@ module.exports = (sequelize, DataTypes) => {
       notice: DataTypes.TEXT,
       about: DataTypes.TEXT,
       hasEmailVerified: DataTypes.BOOLEAN,
+      isPreOrder: DataTypes.BOOLEAN,
       deliveryPrice: DataTypes.STRING,
       minOrder: DataTypes.STRING,
       maxTime: DataTypes.STRING,
