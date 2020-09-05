@@ -36,6 +36,8 @@ module.exports = (app) => {
 
   app.post(rootUrl("storeListingClose"), controller.shopListingClose);
 
+  app.post(rootUrl("storeFrontPage"), controller.frontPage);
+
   app.post(rootUrl("listingSearch"), controller.shopSearch);
 
   app.get(rootUrl("shops/byUser/:id"), controller.findByUser);
@@ -51,7 +53,7 @@ module.exports = (app) => {
   app.patch(rootUrl("bankDetail/:id"), controller.updateBankDetail);
 
   app.patch(rootUrl("preOrder/:id"), controller.updatePreOrder);
-  
+
   app.post(rootUrl("fetchShopPreOrder"), controller.findShopPreOrder);
 
   app.delete(rootUrl("shop/:id"), controller.delete);

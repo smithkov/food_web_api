@@ -479,6 +479,30 @@ module.exports = {
     });
     return res.status(OK).send({ error: false, data: { close, open } });
   },
+  frontPage(req, res) {
+    return Shop.findAll({
+      limit: 4,
+      include: [
+        {
+          model: Origin,
+          as: "Origin",
+          required: true,
+        },
+        {
+          model: Rating,
+          as: "ratings",
+          required: false,
+        },
+        {
+          model: StoreTime,
+          as: "storeTime",
+          required: true,
+        },
+      ],
+    }).then((shop) => {
+      res.status(OK).send({ error: false, data: shop });
+    });
+  },
   shopListing(req, res) {
     return Shop.findAll({
       distinct: true,

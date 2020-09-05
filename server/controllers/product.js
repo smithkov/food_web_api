@@ -26,64 +26,6 @@ const lastHour = "23:59";
 const myDate = new Date();
 const curTime = moment(myDate).format("HH:mm");
 const getDay = myDate.getDay();
-const openArray = [
-  {
-    model: OpeningDay,
-    as: "openingTimes",
-    where: {
-      oTime: {
-        [Op.between]: [firstHour, curTime],
-      },
-      cTime: {
-        [Op.lte]: lastHour,
-      },
-      dayNum: getDay,
-      checked: true,
-    },
-  },
-];
-const closeArray = [
-  {
-    model: OpeningDay,
-    as: "openingTimes",
-    where: {
-      [Op.and]: [
-        {
-          [Op.or]: [
-            {
-              dayNum: {
-                [Op.and]: [{ [Op.ne]: getDay }, { [Op.ne]: -1 }],
-              },
-              checked: true,
-            },
-            {
-              oTime: {
-                [Op.gt]: curTime,
-              },
-              cTime: {
-                [Op.lte]: lastHour,
-              },
-              dayNum: getDay,
-              checked: true,
-            },
-          ],
-        },
-        {
-          [Op.not]: {
-            oTime: {
-              [Op.between]: [firstHour, curTime],
-            },
-            cTime: {
-              [Op.lte]: lastHour,
-            },
-            dayNum: getDay,
-            checked: true,
-          },
-        },
-      ],
-    },
-  },
-];
 
 module.exports = {
   create: async (req, res) => {
@@ -131,52 +73,7 @@ module.exports = {
     //     .send({ message: Messages.serverError, error: true })
     // );
   },
-  findByCategory: async (req, res) => {
-    const id = req.params.id;
-    try {
-      const openProduct = await Product.findAll({
-        where: { categoryId: id },
-        include: [
-          {
-            model: ProductRating,
-            as: "productRatings",
-            required: false,
-          },
-          {
-            model: Shop,
-            as: "VirtualShop",
-            required: true,
-            include: openArray,
-          },
-        ],
-        order: [["createdAt", "DESC"]],
-      });
-
-      const closeProduct = await Product.findAll({
-        where: { categoryId: id },
-        include: [
-          {
-            model: ProductRating,
-            as: "productRatings",
-            required: false,
-          },
-          {
-            model: Shop,
-            as: "VirtualShop",
-            required: true,
-            include: closeArray,
-          },
-        ],
-        order: [["createdAt", "DESC"]],
-      });
-
-      return res
-        .status(OK)
-        .send({ error: false, open: openProduct, close: closeProduct });
-    } catch (err) {
-      return res.status(SERVER_ERROR).send({ error: true });
-    }
-  },
+ 
   findByUser: async (req, res) => {
     const userId = req.body.userId;
 
@@ -198,62 +95,7 @@ module.exports = {
 
     return res.status(OK).send({ error: false, data: product });
   },
-  findByOrigin: async (req, res) => {
-    const id = req.params.id;
-    try {
-      const openProduct = await Product.findAll({
-        where: { originId: id },
-        include: [
-          {
-            model: ProductRating,
-            as: "productRatings",
-            required: false,
-          },
-          {
-            model: Origin,
-            as: "Origin",
-            required: true,
-            where: { id: id },
-          },
-          {
-            model: Shop,
-            as: "VirtualShop",
-            required: true,
-            include: openArray,
-          },
-        ],
-        order: [["createdAt", "DESC"]],
-      });
-
-      const closeProduct = await Product.findAll({
-        include: [
-          {
-            model: ProductRating,
-            as: "productRatings",
-            required: false,
-          },
-          {
-            model: Origin,
-            as: "Origin",
-            required: true,
-            where: { id: id },
-          },
-          {
-            model: Shop,
-            as: "VirtualShop",
-            required: true,
-            include: closeArray,
-          },
-        ],
-        order: [["createdAt", "DESC"]],
-      });
-      return res
-        .status(OK)
-        .send({ error: false, open: openProduct, close: closeProduct });
-    } catch (err) {
-      return res.status(SERVER_ERROR).send({ error: true });
-    }
-  },
+ 
   delete(req, res) {
     const id = req.params.id;
     return query
@@ -310,102 +152,5 @@ module.exports = {
       .findAllLimit(5)
       .then((product) => res.status(OK).send({ error: false, data: product }));
   },
-  findAllOpen: async (req, res) => {
-    const search = req.body.search;
-    const hasVals = search != "";
-
-    //Begining of available products
-    const product = hasVals
-      ? await Product.findAll({
-          where: {
-            [Op.or]: [
-              { name: { [Op.like]: `%${search}%` } },
-              { desc: { [Op.like]: `%${search}%` } },
-            ],
-          },
-          include: [
-            {
-              model: ProductRating,
-              as: "productRatings",
-              required: true,
-            },
-            {
-              model: Shop,
-              as: "VirtualShop",
-              required: true,
-              include: openArray,
-            },
-          ],
-          order: [["createdAt", "DESC"]],
-        })
-      : await Product.findAll({
-          include: [
-            {
-              model: ProductRating,
-              as: "productRatings",
-              required: false,
-            },
-            {
-              model: Shop,
-              as: "VirtualShop",
-              required: true,
-              include: openArray,
-            },
-          ],
-          order: [["createdAt", "DESC"]],
-        });
-    //End of available products
-
-    //Begining of products not available
-    const notAvailableProducts = hasVals
-      ? await Product.findAll({
-          where: {
-            [Op.or]: [
-              { name: { [Op.like]: `%${search}%` } },
-              { desc: { [Op.like]: `%${search}%` } },
-            ],
-          },
-          include: [
-            {
-              model: ProductRating,
-              as: "productRatings",
-              required: false,
-            },
-            {
-              model: Shop,
-              as: "VirtualShop",
-              required: true,
-              include: closeArray,
-            },
-          ],
-          order: [["createdAt", "DESC"]],
-        })
-      : await Product.findAll({
-          include: [
-            {
-              model: ProductRating,
-              as: "productRatings",
-              required: false,
-            },
-            {
-              model: Shop,
-              as: "VirtualShop",
-              required: true,
-              include: closeArray,
-            },
-          ],
-          order: [["createdAt", "DESC"]],
-        });
-
-    //End of available products
-
-    return res
-      .status(OK)
-      .send({ error: false, open: product, close: notAvailableProducts });
-    //.catch((error) => res.status(SERVER_ERROR).send(error));
-    // return query
-    //   .findAll()
-    //   .then((product) => res.status(OK).send({ error: false, data: product }))
-    //   .catch((error) => res.status(SERVER_ERROR).send(error));
-  },
+ 
 };
