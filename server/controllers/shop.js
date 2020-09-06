@@ -96,14 +96,15 @@ module.exports = {
       shopUrl,
       originId,
     } = req.body;
-
-    const logoObject = req.files["logo"];
-    const bannerObject = req.files["banner"];
+   
+   
+    const logoObject = req.files.logo;
+    const bannerObject = req.files.banner;
 
     const hasShop = await query.findPK(shopId);
 
-    const logo = logoObject ? logoObject[0].filename : null;
-    const banner = bannerObject ? bannerObject[0].filename : null;
+    const logo = logoObject ? logoObject[0].location : null;
+    const banner = bannerObject ? bannerObject[0].location : null;
 
     if (hasShop) {
       const shopUri = shopUrl != "" ? rmSpace(shopUrl) : shopName;

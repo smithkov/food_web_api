@@ -1,36 +1,39 @@
+const aws = require('aws-sdk');
 const multer = require("multer");
+const multerS3 = require('multer-s3');
 const jwt = require("jsonwebtoken");
 const { FAILED_AUTH, OK } = require("../errors/statusCode");
 const { ACCESS_TOKEN } = require("../utility/constants");
 
-const storage = multer.diskStorage({
-  destination: function (req, file, cb) {
-    cb(null, "./uploads/category");
-  },
-  filename: function (req, file, cb) {
-    const filename = `${new Date().getTime()}${file.originalname}`;
-    cb(null, filename);
-  },
-});
+aws.config.update({
+  secretAccessKey:process.env.S3SECRETKEY,
+  accessKeyId:process.env.S3ACCESSKEY,
+  region:"eu-west-2"
+})
+const s3 = new aws.S3();
+
 const fileFilter = (req, file, cb) => {
-  // reject a file
-  if (
-    file.mimetype === "image/jpeg" ||
-    file.mimetype === "image/png" ||
-    file.mimetype === "image/webp"
-  ) {
-    cb(null, true);
+  if (file.mimetype === 'image/jpeg' || file.mimetype === 'image/png'|| file.mimetype === 'image/webp') {
+      cb(null, true)
   } else {
-    throw new Error("Invalid image type");
+      cb(new Error('Invalid Mime Type, only JPEG and PNG'), false);
   }
-};
+}
 const upload = multer({
-  storage: storage,
-  limits: {
-    fileSize: 1024 * 1024 * 5,
-  },
-  fileFilter: fileFilter,
-});
+  fileFilter,
+  storage: multerS3({
+    s3,
+    bucket: 'foodengo',
+    acl: 'public-read',
+    metadata: function (req, file, cb) {
+      cb(null, {fieldName: 'foodengo_img'});
+    },
+    key: function (req, file, cb) {
+      cb(null, Date.now().toString())
+    }
+  })
+})
+
 
 const authenticateUser = (req, res, next) => {
   try {

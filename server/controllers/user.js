@@ -337,7 +337,7 @@ module.exports = {
     } = req.body;
     const id = req.params.id;
 
-    const photo = req.file ? req.file.filename : "";
+    const photo = req.file ? req.file.location : "";
     return query
       .update(id, {
         firstName,
@@ -359,7 +359,7 @@ module.exports = {
     const id = req.params.id;
     if (req.file) {
       return query
-        .update(id, { photo: req.file.filename })
+        .update(id, { photo: req.file.location })
         .then((user) => res.status(OK).send({ error: false, data: user }))
         .catch((error) =>
           res.status(SERVER_ERROR).send({ error: true, message: serverError })

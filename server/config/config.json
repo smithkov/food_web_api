@@ -1,11 +1,12 @@
 {
   "development": {
-    "username": "thescoti_smithkov",
-    "password": "2000years@BC",
-    "database": "thescoti_foodengo_db",
-    "host": "68.66.224.47",
+    "username": "postgres",
+    "password": "Nnamdi1984",
+    "database": "food_app_db",
+    "host": "127.0.0.1",
     "dialect": "postgres",
-    "port": 5432
+    "port": 5432,
+    "operatorsAliases": false
   },
   "test": {
     "username": "postgres",
@@ -16,13 +17,8 @@
     "port": 5432,
     "operatorsAliases": false
   },
-  
+
   "production": {
-    "username": "thescoti_smithkov",
-    "password": "2000years@BC",
-    "database": "thescoti_foodengo_db",
-    "host": "68.66.224.47",
-    "dialect": "postgres",
-    "port": 5432
+    "use_env_variable": "DATABASE_URL"
   }
 }

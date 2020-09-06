@@ -25,7 +25,7 @@ module.exports = {
           .add({
             name: name,
             categoryId: categoryId,
-            imagePath: req.file.filename,
+            imagePath: req.file.location,
           })
           .then((subCategory) => res.status(OK).send(subCategory))
           .catch((error) => res.status(SERVER_ERROR).send(error));

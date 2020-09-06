@@ -58,7 +58,7 @@ module.exports = {
         originId,
         ingredients: JSON.parse(ingredients),
         shopId,
-        photo: req.file.filename,
+        photo: req.file.location,
         unitId: unitId ? unitId : null,
       })
       .then((product) => {
@@ -127,7 +127,7 @@ module.exports = {
       photo,
     } = req.body;
     const id = req.params.id;
-    const mealPhoto = req.file ? req.file.filename : photo;
+    const mealPhoto = req.file ? req.file.location : photo;
     return query
       .update(id, {
         name,
