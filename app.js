@@ -4,6 +4,7 @@ const path = require("path");
 const bodyParser = require("body-parser");
 require("dotenv").config();
 var cors = require("cors");
+
 const { ACCESS_TOKEN } = require("./server/utility/constants");
 
 // Set up the express app
