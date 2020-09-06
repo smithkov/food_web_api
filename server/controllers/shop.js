@@ -17,6 +17,8 @@ const firstHour = "00:00";
 const lastHour = "23:00";
 const myDate = new Date();
 const curTime = moment(myDate).format("HH:mm");
+const { v4: uuidv4 } = require("uuid");
+const AWS = require("aws-sdk");
 const getDay = myDate.getDay();
 const {
   SERVER_ERROR,
@@ -96,8 +98,7 @@ module.exports = {
       shopUrl,
       originId,
     } = req.body;
-   
-   
+
     const logoObject = req.files.logo;
     const bannerObject = req.files.banner;
 
@@ -130,6 +131,29 @@ module.exports = {
         message: "Saved successfully.",
       });
     }
+  },
+  runCommand: (req, res) => {
+    const s3 = new AWS.S3();
+    AWS.config.update({
+      accessKeyId: process.env.S3ACCESSKEY,
+      secretAccessKey: process.env.S3SECRETKEY,
+      region: "eu-west-2",
+    });
+
+    const params = {
+      Bucket: "foodengo",
+      Key: "sds.sql",
+      Expires: 100,
+    };
+    s3.getSignedUrl("putObject", params, function (err, signedUrl) {
+      if (err) {
+        console.log(err);
+        //return next(error)
+      } else {
+        console.log(signedUrl.split("?")[0]);
+        console.log(signedUrl);
+      }
+    });
   },
   createShopInfo: async (req, res) => {
     //This method is where a store information is created for the first time when a seller registers.
