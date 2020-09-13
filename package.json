@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "start": "node app.js"
+    "start": "nodemon app.js"
   },
   "keywords": [],
   "author": "",
@@ -32,7 +32,8 @@
     "sequelize": "^5.22.3",
     "stripe": "^8.85.0",
     "twilio": "^3.48.2",
-    "uuid": "^8.3.0"
+    "uuid": "^8.3.0",
+    "uuidv4": "^6.2.3"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

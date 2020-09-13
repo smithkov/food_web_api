@@ -69,6 +69,13 @@ module.exports = {
           return res.status(OK).send({
             error: false,
             token: token,
+            data: {
+              id: user.id,
+              firstName: user.firstName,
+              fullName: `${user.firstName} ${user.lastName}`,
+              role: user.Role.name,
+              shopId: null,
+            },
           });
         }
       });
@@ -84,7 +91,7 @@ module.exports = {
     const { email, password } = req.body;
 
     const user = await query.findOne({ email: email });
-   
+
     if (!user) {
       return res
         .status(FAILED_AUTH)
@@ -219,7 +226,7 @@ module.exports = {
             maxAge: 86400 * 1000,
             httpOnly: true,
           });
-          
+
           return res.status(OK).send({
             error: false,
             token: token,
@@ -335,25 +342,28 @@ module.exports = {
       phone,
       cityId,
     } = req.body;
-    const id = req.params.id;
+
+    const userId = req.params.id;
 
     const photo = req.file ? req.file.location : "";
+    const obj = {
+      firstName,
+      lastName,
+      email,
+      firstAddress,
+      secondAddress,
+      postCode,
+      phone,
+      photo,
+    };
+    if (cityId !== "null") {
+      obj.cityId = cityId;
+    }
     return query
-      .update(id, {
-        firstName,
-        lastName,
-        email,
-        firstAddress,
-        secondAddress,
-        postCode,
-        cityId,
-        phone,
-        photo,
-      })
+      .update(userId, obj)
       .then((user) =>
         res.status(OK).send({ error: false, message: savedSuccess, data: user })
-      )
-      .catch((error) => res.status(SERVER_ERROR).send(error));
+      );
   },
   updatePhoto(req, res) {
     const id = req.params.id;

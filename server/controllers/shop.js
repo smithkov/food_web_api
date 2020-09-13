@@ -1,6 +1,9 @@
 const Shop = require("../models").VirtualShop;
 const bcrypt = require("bcryptjs");
 const User = require("../models").User;
+const Product = require("../models").Product;
+const Category = require("../models").Category;
+const ProductRating = require("../models").ProductRating;
 const Rating = require("../models").Rating;
 const StoreTime = require("../models").StoreTime;
 const OpeningDay = require("../models").OpeningDay;
@@ -20,6 +23,8 @@ const curTime = moment(myDate).format("HH:mm");
 const { v4: uuidv4 } = require("uuid");
 const AWS = require("aws-sdk");
 const getDay = myDate.getDay();
+const openDesc = "Food Sellers Currently Open";
+const closeDesc = "Food Sellers Currently Closed";
 const {
   SERVER_ERROR,
   OK,
@@ -502,8 +507,47 @@ module.exports = {
         },
       ],
     });
-    return res.status(OK).send({ error: false, data: { close, open } });
+    return res.status(OK).send({ error: false, data: { close, open }, openDesc:openDesc, closeDesc:closeDesc });
   },
+
+  findProductByCategory: async (req, res) => {
+    const { categoryId } = req.body;
+
+    const data = await Product.findAll({
+      where: { categoryId },
+      include: [
+        {
+          model: ProductRating,
+          as: "productRatings",
+        },
+        {
+          model: Category,
+          as: "Category",
+        },
+        {
+          model: Shop,
+          as: "VirtualShop",
+          required: true,
+          include: [
+            {
+              model: StoreTime,
+              as: "storeTime",
+              required: true,
+            },
+          ],
+        },
+      ],
+    });
+
+    return res
+      .status(OK)
+      .send({
+        error: false,
+        desc: `List of meals under '${data[0].Category.name}' category`,
+        data: data,
+      });
+  },
+
   frontPage(req, res) {
     return Shop.findAll({
       limit: 4,
@@ -553,7 +597,11 @@ module.exports = {
         },
       ],
     }).then((shop) => {
-      res.status(OK).send({ error: false, data: shop });
+      res.status(OK).send({
+        error: false,
+        desc: openDesc,
+        data: shop,
+      });
     });
   },
   shopListingClose(req, res) {
@@ -580,7 +628,13 @@ module.exports = {
           },
         },
       ],
-    }).then((shop) => res.status(OK).send({ error: false, data: shop }));
+    }).then((shop) =>
+      res.status(OK).send({
+        error: false,
+        desc: closeDesc,
+        data: shop,
+      })
+    );
   },
   shopSearch(req, res) {
     const search = req.body.search.toLowerCase();
@@ -612,8 +666,19 @@ module.exports = {
           as: "ratings",
           required: false,
         },
+        {
+          model: StoreTime,
+          as: "storeTime",
+          required: true,
+        },
       ],
-    }).then((shop) => res.status(OK).send({ error: false, data: shop }));
+    }).then((shop) =>
+      res.status(OK).send({
+        error: false,
+        desc: "Matching results based on your search",
+        data: shop,
+      })
+    );
   },
   findDuration(req, res) {
     return res.status(OK).send({ error: false, data: duration });
