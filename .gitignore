@@ -15,7 +15,9 @@ coverage
 
 # Grunt intermediate storage (http://gruntjs.com/creating-plugins#storing-task-files)
 .grunt
+# dotenv environment variables file
 .env
+.env.test
 
 # node-waf configuration
 .lock-wscript

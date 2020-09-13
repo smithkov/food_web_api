@@ -9,7 +9,6 @@ const jwt = require("jsonwebtoken");
 const nodemailer = require("nodemailer");
 
 const secret = process.env.SECRET;
-
 const {
   SERVER_ERROR,
   OK,
