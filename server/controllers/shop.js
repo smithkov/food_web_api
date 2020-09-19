@@ -25,6 +25,10 @@ const AWS = require("aws-sdk");
 const getDay = myDate.getDay();
 const openDesc = "Food Sellers Currently Open";
 const closeDesc = "Food Sellers Currently Closed";
+const twilio = require("twilio");
+const accountSid = process.env.TWILIOSID; // Your Account SID from www.twilio.com/console
+const authToken = process.env.TWILIOTOKEN; // Your Auth Token from www.twilio.com/console
+const client = new twilio(accountSid, authToken);
 const {
   SERVER_ERROR,
   OK,
@@ -224,6 +228,28 @@ module.exports = {
 
             const mailOption = Mail.activateOption(user.email, rand);
             Mail.send(mailOption);
+            const msg = await client.messages.create(
+              {
+                body: `Your Foodengo code is ${rand}`,
+                to: `+44${phone}`,
+                from: "Foodengo",
+              },
+              async function (err, responseData) {
+                if (!err) {
+                  console.log(err+ "--------------------------------------------------------------")
+                  // res.status(OK).send({
+                  //   error: false,
+                  //   message: "Payment successfully made",
+                  // });
+                } else {
+                  console.log("true--------------------------------------------------------------")
+                  // res.status(OK).send({
+                  //   error: false,
+                  //   message: "Payment successfully made",
+                  // });
+                }
+              }
+            );
             await t.commit();
 
             return res.status(OK).send({
@@ -269,7 +295,7 @@ module.exports = {
     const shopId = req.body.shopId;
 
     const shop = await query.findPK(shopId);
-    const rand = Math.floor(111111 + Math.random() * 999999);
+    const rand = Math.floor(Math.random() * 899999 + 100000)
 
     if (shop) {
       await query.update(shop.id, {
@@ -507,7 +533,12 @@ module.exports = {
         },
       ],
     });
-    return res.status(OK).send({ error: false, data: { close, open }, openDesc:openDesc, closeDesc:closeDesc });
+    return res.status(OK).send({
+      error: false,
+      data: { close, open },
+      openDesc: openDesc,
+      closeDesc: closeDesc,
+    });
   },
 
   findProductByCategory: async (req, res) => {
@@ -539,13 +570,11 @@ module.exports = {
       ],
     });
 
-    return res
-      .status(OK)
-      .send({
-        error: false,
-        desc: `List of meals under '${data[0].Category.name}' category`,
-        data: data,
-      });
+    return res.status(OK).send({
+      error: false,
+      desc: `List of meals under '${data[0].Category.name}' category`,
+      data: data,
+    });
   },
 
   frontPage(req, res) {
